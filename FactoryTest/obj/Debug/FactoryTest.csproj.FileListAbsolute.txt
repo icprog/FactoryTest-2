@@ -1,0 +1,16 @@
+d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\bin\Debug\FactoryTest.exe
+d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\bin\Debug\FactoryTest.pdb
+d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\FactoryTest.csprojResolveAssemblyReference.cache
+d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\MainWindow.g.cs
+d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\App.g.cs
+d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\FactoryTest_MarkupCompile.cache
+d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\FactoryTest_MarkupCompile.lref
+d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\MainWindow.baml
+d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\FactoryTest.g.resources
+d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\FactoryTest.Properties.Resources.resources
+d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\FactoryTest.csproj.GenerateResource.Cache
+d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\FactoryTest.csproj.CoreCompileInputs.cache
+d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\FactoryTest.exe
+d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\FactoryTest.pdb
+d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\ShowMessage.g.cs
+d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\ShowMessage.baml
