@@ -44,8 +44,8 @@ namespace FactoryTest
         private delegate void UpdateUiTextFailDelegate(int num);
         private static String SIM_IMSI_NUM = "460";
         private static String SW_VERSION = "V0.4_201708250950_Debug";
-        private static int MAX_LEVEL = 100, MIN_LEVEL = 50, WIFI_RSSI = -55, BLE_RSSI = -75,BLE_MAJOR=37022,BLE_MINOR=402;
-        private static String WIFI_SSID = "TP-LINK_8C22";
+        private static int MAX_LEVEL = 100, MIN_LEVEL = 50, WIFI_RSSI = -55, BLE_RSSI = -75, BLE_MAJOR = 333, BLE_MINOR=333;
+        private static String WIFI_SSID = "D-Link_DIR-822";
         private static int gx = 0, gy = 0, gz = 0,WIFI_SCAN_TIMES=0,MAX_WIFI_SCAN_TIMES=3;
         private bool Rec_state;
 
@@ -838,7 +838,7 @@ namespace FactoryTest
                                 if (receiveData.Contains(WIFI_SSID) == true)
                                 {
                                     String tmp = receiveData;
-                                    int len= tmp.LastIndexOf("rssi:",(tmp.IndexOf(WIFI_SSID)-17));
+                                    int len= tmp.IndexOf("rssi:",(tmp.IndexOf(WIFI_SSID)-17));
                                     String str= tmp.Substring(len + 5, 4);
                                     str = str.Replace(" ", "");
                                     Int16 rssi = Convert.ToInt16(str);
