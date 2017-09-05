@@ -15,7 +15,6 @@ d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\ShowM
 d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\ShowMessage.baml
 F:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\bin\Debug\FactoryTest.exe
 F:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\bin\Debug\FactoryTest.pdb
-F:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\FactoryTest.csprojResolveAssemblyReference.cache
 F:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\MainWindow.g.cs
 F:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\ShowMessage.g.cs
 F:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\App.g.cs
@@ -31,3 +30,8 @@ F:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\Facto
 F:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\FactoryTest.pdb
 d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\SettingWindows.g.cs
 d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\SettingWindows.baml
+F:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\SettingWindows.g.cs
+F:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\GeneratedInternalTypeHelper.g.cs
+F:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\SettingWindows.baml
+F:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\generic.baml
+F:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\App.baml

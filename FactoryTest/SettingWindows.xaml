@@ -4,11 +4,15 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FactoryTest"
-        xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="FactoryTest.SettingWindows"
- 
+        xmlns:System="clr-namespace:System;assembly=mscorlib" xmlns:TestTextBoxWaterMark="clr-namespace:TestTextBoxWaterMark" x:Class="FactoryTest.SettingWindows"
+        xmlns:my="clr-namespace:TestTextBoxWaterMark"
         mc:Ignorable="d"
         Title="设置" Height="360" Width="480" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <Grid>
+        <Grid.Resources>
+
+
+        </Grid.Resources>
         <CheckBox x:Name="Test_Flag" Content="跳过检测测试完成标志" HorizontalAlignment="Left" Margin="10,21,0,0" VerticalAlignment="Top"/>
         <CheckBox x:Name="Cal_Flag" Content="跳过检测校准完成标志" HorizontalAlignment="Left" Margin="237,21,0,0" VerticalAlignment="Top"/>
         <CheckBox x:Name="Final_Flag" Content="跳过检测综测完成标志" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top"/>
@@ -48,95 +52,20 @@
         <Label Content="扫描WIFI名称:" HorizontalAlignment="Left" Margin="17,144,0,0" VerticalAlignment="Top"/>
         <TextBox x:Name="WIFI_SSID" HorizontalAlignment="Left" Height="20" Margin="107,146,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="155" FontSize="14" MaxLength="30"/>
         <Label Content="WIFI信号阈值:" HorizontalAlignment="Left" Margin="17,169,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="WIFI_RSSI" HorizontalAlignment="Left" Height="20" Margin="107,171,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="63" FontSize="14" MaxLength="4" TextChanged="WIFI_RSSI_TextChanged">
-            <TextBox.Resources>
-                <VisualBrush x:Key="HintText" TileMode="None" Opacity="0.5" Stretch="None" AlignmentX="Left">
-                    <VisualBrush.Visual>
-                        <TextBlock FontStyle="Italic" Text="-1~-100"/>
-                    </VisualBrush.Visual>
-                </VisualBrush>
-            </TextBox.Resources>
-            <TextBox.Style>
-                <Style TargetType="TextBox">
-                    <Style.Triggers>
-                        <Trigger Property="Text" Value="{x:Null}">
-                            <Setter Property="Background" Value="{StaticResource HintText}"/>
-                        </Trigger>
-                        <Trigger Property="Text" Value="">
-                            <Setter Property="Background" Value="{StaticResource HintText}"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </TextBox.Style>
-        </TextBox>
-        <Label Content="dB" HorizontalAlignment="Left" Margin="175,171,0,0" VerticalAlignment="Top"/>
+        <my:PerfectWateMarkTextBox x:Name="WIFI_RSSI" HorizontalAlignment="Left" Height="20" Margin="107,171,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="63" FontSize="12" MaxLength="4" TextChanged="WIFI_RSSI_TextChanged" WateMark="-1~-100">
+        </my:PerfectWateMarkTextBox>
+        <Label Content="dB" HorizontalAlignment="Left" Margin="170,168,0,0" VerticalAlignment="Top"/>
         <Label Content="BLE信号阈值:" HorizontalAlignment="Left" Margin="17,194,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="BLE_RSSI" HorizontalAlignment="Left" Height="20" Margin="107,196,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="63" FontSize="14" MaxLength="4">
-            <TextBox.Resources>
-                <VisualBrush x:Key="HintText" TileMode="None" Opacity="0.5" Stretch="None" AlignmentX="Left">
-                    <VisualBrush.Visual>
-                        <TextBlock FontStyle="Italic" Text="-1~-100"/>
-                    </VisualBrush.Visual>
-                </VisualBrush>
-            </TextBox.Resources>
-            <TextBox.Style>
-                <Style TargetType="TextBox">
-                    <Style.Triggers>
-                        <Trigger Property="Text" Value="{x:Null}">
-                            <Setter Property="Background" Value="{StaticResource HintText}"/>
-                        </Trigger>
-                        <Trigger Property="Text" Value="">
-                            <Setter Property="Background" Value="{StaticResource HintText}"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </TextBox.Style>
-        </TextBox>
-        <Label Content="dB" HorizontalAlignment="Left" Margin="175,194,0,0" VerticalAlignment="Top"/>
+        <my:PerfectWateMarkTextBox x:Name="BLE_RSSI" HorizontalAlignment="Left" Height="20" Margin="107,196,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="63" FontSize="12" MaxLength="4" WateMark="-1~-100">
+        </my:PerfectWateMarkTextBox>
+        <Label Content="dB" HorizontalAlignment="Left" Margin="170,194,0,0" VerticalAlignment="Top"/>
         <Label Content="BLE MAJOR:" HorizontalAlignment="Left" Margin="17,219,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="BLE_MAJOR" HorizontalAlignment="Left" Height="20" Margin="107,221,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="63" RenderTransformOrigin="0.474,0.208" FontSize="14" MaxLength="5">
-            <TextBox.Resources>
-                <VisualBrush x:Key="HintText" TileMode="None" Opacity="0.5" Stretch="None" AlignmentX="Left">
-                    <VisualBrush.Visual>
-                        <TextBlock FontStyle="Italic" Text="0~65535"/>
-                    </VisualBrush.Visual>
-                </VisualBrush>
-            </TextBox.Resources>
-            <TextBox.Style>
-                <Style TargetType="TextBox">
-                    <Style.Triggers>
-                        <Trigger Property="Text" Value="{x:Null}">
-                            <Setter Property="Background" Value="{StaticResource HintText}"/>
-                        </Trigger>
-                        <Trigger Property="Text" Value="">
-                            <Setter Property="Background" Value="{StaticResource HintText}"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </TextBox.Style>
-        </TextBox>
+        <my:WateMarkTextBox x:Name="BLE_MAJOR" HorizontalAlignment="Left" Height="20" Margin="107,221,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="63" RenderTransformOrigin="0.474,0.208" FontSize="12" MaxLength="5" WateMark="0~65535">
+        </my:WateMarkTextBox>
         <Label Content="BLE MINOR:" HorizontalAlignment="Left" Margin="17,244,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="BLE_MINOR" HorizontalAlignment="Left" Height="20" Margin="107,246,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="63" RenderTransformOrigin="0.474,0.208" FontSize="14" MaxLength="5">
-            <TextBox.Resources>
-                <VisualBrush x:Key="HintText" TileMode="None" Opacity="0.5" Stretch="None" AlignmentX="Left">
-                    <VisualBrush.Visual>
-                        <TextBlock FontStyle="Italic" Text="0~65535"/>
-                    </VisualBrush.Visual>
-                </VisualBrush>
-            </TextBox.Resources>
-            <TextBox.Style>
-                <Style TargetType="TextBox">
-                    <Style.Triggers>
-                        <Trigger Property="Text" Value="{x:Null}">
-                            <Setter Property="Background" Value="{StaticResource HintText}"/>
-                        </Trigger>
-                        <Trigger Property="Text" Value="">
-                            <Setter Property="Background" Value="{StaticResource HintText}"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </TextBox.Style>
-        </TextBox>
-
+        <my:WateMarkTextBox x:Name="BLE_MINOR" HorizontalAlignment="Left" Height="20" Margin="107,246,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="63" RenderTransformOrigin="0.474,0.208" FontSize="12" MaxLength="5" WateMark="0~65535">
+        </my:WateMarkTextBox>
+        <Button HorizontalAlignment="Left" VerticalAlignment="Top" Width="84" Margin="119,288,0,0" Height="33" Content="保存"/>
+        <Button Content="取消" HorizontalAlignment="Left" VerticalAlignment="Top" Width="84" Margin="270,288,0,0" Height="33"/>
     </Grid>
 </Window>

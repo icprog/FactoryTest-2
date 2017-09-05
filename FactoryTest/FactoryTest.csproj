@@ -52,6 +52,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="PerfectWateMarkTextBox.cs" />
     <Compile Include="SettingWindows.xaml.cs">
       <DependentUpon>SettingWindows.xaml</DependentUpon>
     </Compile>
@@ -59,7 +60,12 @@
     <Compile Include="ShowMessage.xaml.cs">
       <DependentUpon>ShowMessage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="WateMarkTextBox.cs" />
     <Compile Include="WDKVidPidQuery.cs" />
+    <Page Include="generic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
