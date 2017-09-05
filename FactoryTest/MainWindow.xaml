@@ -33,6 +33,7 @@
         <Label x:Name="state_19" Content="19.挂断电话测试" HorizontalAlignment="Left" Margin="10,460,0,0" VerticalAlignment="Top" Width="212"/>
         <Label x:Name="state_20" Content="20.写入完成标志" HorizontalAlignment="Left" Margin="10,485,0,0" VerticalAlignment="Top" Width="212"/>
         <Label x:Name="state_21" Content="21.关机测试" HorizontalAlignment="Left" Margin="10,510,0,0" VerticalAlignment="Top" Width="212"/>
+        <Button x:Name="btn_Setting" Content="设置" HorizontalAlignment="Left" Margin="267,550,0,0" VerticalAlignment="Top" Width="75" Click="btn_Setting_Click"/>
 
     </Grid>
 </Window>

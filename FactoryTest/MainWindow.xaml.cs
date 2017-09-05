@@ -44,11 +44,15 @@ namespace FactoryTest
         private delegate void UpdateUiTextFailDelegate(int num);
         private static String SIM_IMSI_NUM = "460";
         private static String SW_VERSION = "V0.4_201708250950_Debug";
-        private static int MAX_LEVEL = 100, MIN_LEVEL = 50, WIFI_RSSI = -55, BLE_RSSI = -75, BLE_MAJOR = 333, BLE_MINOR=333;
-        private static String WIFI_SSID = "D-Link_DIR-822";
+        private static int MAX_LEVEL = 100, MIN_LEVEL = 50, WIFI_RSSI = -55, BLE_RSSI = -75, BLE_MAJOR = 37022, BLE_MINOR=402;
+        private static String WIFI_SSID = "TP-LINK_8C22";
         private static int gx = 0, gy = 0, gz = 0,WIFI_SCAN_TIMES=0,MAX_WIFI_SCAN_TIMES=3;
         private bool Rec_state;
+        private enum SystemStates
+        {
+            START_STATE=0,
 
+        };
         public MainWindow()
         {
             InitializeComponent();
@@ -148,6 +152,12 @@ namespace FactoryTest
             //btn_Start.Unchecked -= btn_Start_Unchecked;
             btn_Start.IsChecked = false;
 
+        }
+
+        private void btn_Setting_Click(object sender, RoutedEventArgs e)
+        {
+            SettingWindows sw = new SettingWindows();
+            sw.ShowDialog();
         }
 
         private void AutoDectionTimer_Tick(int vaule)
@@ -1173,7 +1183,7 @@ namespace FactoryTest
                             break;
                         case 38:
                             {
-                                if(receiveData.Contains("\r\nSTART RECORD \r\n") ==true)
+                                if(receiveData.Contains("\r\nSTART RECORD\r\n") ==true)
                                 {
                                     state = 21;
                                     currentstate = 39;

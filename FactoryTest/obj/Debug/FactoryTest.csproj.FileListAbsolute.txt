@@ -1,6 +1,5 @@
 d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\bin\Debug\FactoryTest.exe
 d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\bin\Debug\FactoryTest.pdb
-d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\FactoryTest.csprojResolveAssemblyReference.cache
 d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\MainWindow.g.cs
 d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\App.g.cs
 d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\FactoryTest_MarkupCompile.cache
@@ -30,3 +29,5 @@ F:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\Facto
 F:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\FactoryTest.csproj.CoreCompileInputs.cache
 F:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\FactoryTest.exe
 F:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\FactoryTest.pdb
+d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\SettingWindows.g.cs
+d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\SettingWindows.baml

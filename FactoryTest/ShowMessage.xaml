@@ -10,7 +10,7 @@
         <Button x:Name="btn_OK" Content="是" HorizontalAlignment="Left" Margin="50,96,0,0" VerticalAlignment="Top" Width="84" Height="55" Click="btn_OK_Click"/>
         <Button x:Name="btn_CANCEL" Content="否" HorizontalAlignment="Left" Margin="180,96,0,0" VerticalAlignment="Top" Width="84" Height="55" Click="btn_CANCEL_Click"/>
         <Button x:Name="btn_ENTER" Content="确定" HorizontalAlignment="Left" Margin="102,169,0,0" VerticalAlignment="Top" Width="102" Height="50" Click="btn_ENTER_Click"/>
-        <Label x:Name="label_SHOW" Content="" HorizontalAlignment="Left" Margin="20,39,0,0" VerticalAlignment="Top" Width="250" Height="33" FontSize="16" FontWeight="Bold" Foreground="Red" HorizontalContentAlignment="Center"/>
+        <Label x:Name="label_SHOW" Content="" HorizontalAlignment="Left" Margin="20,39,0,0" VerticalAlignment="Top" Width="250" Height="33" FontSize="14" FontWeight="Bold" Foreground="Red" HorizontalContentAlignment="Center"/>
 
     </Grid>
 </Window>

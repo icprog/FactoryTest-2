@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-F:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\
+d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\
 FactoryTest
 none
 false
 DEBUG;TRACE
-F:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\App.xaml
-2-1765742220
+d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\App.xaml
+31210970164
 
-8360532320
+91076174422
 121654848548
-MainWindow.xaml;ShowMessage.xaml;
+MainWindow.xaml;SettingWindows.xaml;ShowMessage.xaml;
 
 False
 
