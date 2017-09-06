@@ -53,6 +53,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="PerfectWateMarkTextBox.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="SettingWindows.xaml.cs">
       <DependentUpon>SettingWindows.xaml</DependentUpon>
     </Compile>
@@ -105,6 +106,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

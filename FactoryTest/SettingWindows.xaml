@@ -6,21 +6,22 @@
         xmlns:local="clr-namespace:FactoryTest"
         xmlns:System="clr-namespace:System;assembly=mscorlib" xmlns:TestTextBoxWaterMark="clr-namespace:TestTextBoxWaterMark" x:Class="FactoryTest.SettingWindows"
         xmlns:my="clr-namespace:TestTextBoxWaterMark"
+        xmlns:p="clr-namespace:FactoryTest.Properties"
         mc:Ignorable="d"
-        Title="设置" Height="360" Width="480" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+        Title="设置" Height="360" Width="480" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Closing="Window_Closing">
     <Grid>
         <Grid.Resources>
 
 
         </Grid.Resources>
-        <CheckBox x:Name="Test_Flag" Content="跳过检测测试完成标志" HorizontalAlignment="Left" Margin="10,21,0,0" VerticalAlignment="Top"/>
-        <CheckBox x:Name="Cal_Flag" Content="跳过检测校准完成标志" HorizontalAlignment="Left" Margin="237,21,0,0" VerticalAlignment="Top"/>
-        <CheckBox x:Name="Final_Flag" Content="跳过检测综测完成标志" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top"/>
-        <CheckBox x:Name="Current_Flag" Content="跳过电流测试通过标志" HorizontalAlignment="Left" Margin="237,41,0,0" VerticalAlignment="Top"/>
-        <CheckBox x:Name="Aging_Flag" Content="跳过老化试验通过标志" HorizontalAlignment="Left" Margin="10,61,0,0" VerticalAlignment="Top"/>
-        <CheckBox x:Name="NoCallOut_Flag" Content="跳过拨打电话" HorizontalAlignment="Left" Margin="237,61,0,0" VerticalAlignment="Top"/>
+        <CheckBox x:Name="Test_Flag" Content="跳过检测测试完成标志" HorizontalAlignment="Left" Margin="10,21,0,0" VerticalAlignment="Top" IsChecked="{Binding Source={x:Static p:Settings.Default },Path=Skip_Test,Mode=TwoWay}" />
+        <CheckBox x:Name="Cal_Flag" Content="跳过检测校准完成标志" HorizontalAlignment="Left" Margin="237,21,0,0" VerticalAlignment="Top" IsChecked="{Binding Source={x:Static p:Settings.Default },Path=Skip_Cal,Mode=TwoWay}" />
+        <CheckBox x:Name="Final_Flag" Content="跳过检测综测完成标志" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top" IsChecked="{Binding Source={x:Static p:Settings.Default },Path=Skip_Final,Mode=TwoWay}" />
+        <CheckBox x:Name="Current_Flag" Content="跳过电流测试通过标志" HorizontalAlignment="Left" Margin="237,41,0,0" VerticalAlignment="Top" IsChecked="{Binding Source={x:Static p:Settings.Default },Path=Skip_Current,Mode=TwoWay}" />
+        <CheckBox x:Name="Aging_Flag" Content="跳过老化试验通过标志" HorizontalAlignment="Left" Margin="10,61,0,0" VerticalAlignment="Top" IsChecked="{Binding Source={x:Static p:Settings.Default },Path=Skip_Aging,Mode=TwoWay}" />
+        <CheckBox x:Name="NoCallOut_Flag" Content="跳过拨打电话" HorizontalAlignment="Left" Margin="237,61,0,0" VerticalAlignment="Top" IsChecked="{Binding Source={x:Static p:Settings.Default },Path=Skip_Call_Out,Mode=TwoWay}" />
         <Label Content="电池电量范围:" HorizontalAlignment="Left" Margin="17,91,0,0" VerticalAlignment="Top"/>
-        <ComboBox x:Name="MinLevel" HorizontalAlignment="Left" Margin="107,93,0,0" VerticalAlignment="Top" Width="63" SelectedIndex="0">
+        <ComboBox x:Name="MinLevel" HorizontalAlignment="Left" Margin="107,93,0,0" VerticalAlignment="Top" Width="63" SelectedIndex="{Binding Source={x:Static p:Settings.Default },Path=Bat_Min_Level,Mode=TwoWay}" DropDownClosed="MinLevel_DropDownClosed" DropDownOpened="MinLevel_DropDownOpened" >
             <System:String>0%</System:String>
             <System:String>10%</System:String>
             <System:String>20%</System:String>
@@ -34,7 +35,7 @@
             <System:String>100%</System:String>
         </ComboBox>
         <Label Content="~" HorizontalAlignment="Left" Margin="175,89,0,0" VerticalAlignment="Top"/>
-        <ComboBox x:Name="MaxLevel" HorizontalAlignment="Left" Margin="199,93,0,0" VerticalAlignment="Top" Width="63" SelectedIndex="1">
+        <ComboBox x:Name="MaxLevel" HorizontalAlignment="Left" Margin="199,93,0,0" VerticalAlignment="Top" Width="63" SelectedIndex="{Binding Source={x:Static p:Settings.Default },Path=Bat_Max_Level,Mode=TwoWay}" DropDownClosed="MaxLevel_DropDownClosed" DropDownOpened="MaxLevel_DropDownOpened">
             <System:String>0%</System:String>
             <System:String>10%</System:String>
             <System:String>20%</System:String>
@@ -48,24 +49,25 @@
             <System:String>100%</System:String>
         </ComboBox>
         <Label Content="设备软件版本:" HorizontalAlignment="Left" Margin="17,119,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="SW_VERSION" HorizontalAlignment="Left" Height="20" Margin="107,121,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="155" FontSize="14" MaxLength="30"/>
+        <TextBox x:Name="SW_VERSION" HorizontalAlignment="Left" Height="20" Margin="107,121,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="300" FontSize="14" MaxLength="30" Text="{Binding Source={x:Static p:Settings.Default },Path=SW_Version,Mode=TwoWay}"/>
         <Label Content="扫描WIFI名称:" HorizontalAlignment="Left" Margin="17,144,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="WIFI_SSID" HorizontalAlignment="Left" Height="20" Margin="107,146,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="155" FontSize="14" MaxLength="30"/>
+        <TextBox x:Name="WIFI_SSID" HorizontalAlignment="Left" Height="20" Margin="107,146,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="300" FontSize="14" MaxLength="30" Text="{Binding Source={x:Static p:Settings.Default },Path=WIFI_SSID,Mode=TwoWay}"/>
         <Label Content="WIFI信号阈值:" HorizontalAlignment="Left" Margin="17,169,0,0" VerticalAlignment="Top"/>
-        <my:PerfectWateMarkTextBox x:Name="WIFI_RSSI" HorizontalAlignment="Left" Height="20" Margin="107,171,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="63" FontSize="12" MaxLength="4" TextChanged="WIFI_RSSI_TextChanged" WateMark="-1~-100">
+        <my:PerfectWateMarkTextBox x:Name="WIFI_RSSI" HorizontalAlignment="Left" Height="20" Margin="107,171,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="63" FontSize="12" MaxLength="4" WateMark="-1~-100" Text="{Binding Source={x:Static p:Settings.Default },Path=WIFI_RSSI,Mode=TwoWay}" >
         </my:PerfectWateMarkTextBox>
         <Label Content="dB" HorizontalAlignment="Left" Margin="170,168,0,0" VerticalAlignment="Top"/>
         <Label Content="BLE信号阈值:" HorizontalAlignment="Left" Margin="17,194,0,0" VerticalAlignment="Top"/>
-        <my:PerfectWateMarkTextBox x:Name="BLE_RSSI" HorizontalAlignment="Left" Height="20" Margin="107,196,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="63" FontSize="12" MaxLength="4" WateMark="-1~-100">
+        <my:PerfectWateMarkTextBox x:Name="BLE_RSSI" HorizontalAlignment="Left" Height="20" Margin="107,196,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="63" FontSize="12" MaxLength="4" WateMark="-1~-100" Text="{Binding Source={x:Static p:Settings.Default },Path=BT_RSSI,Mode=TwoWay}">
         </my:PerfectWateMarkTextBox>
         <Label Content="dB" HorizontalAlignment="Left" Margin="170,194,0,0" VerticalAlignment="Top"/>
         <Label Content="BLE MAJOR:" HorizontalAlignment="Left" Margin="17,219,0,0" VerticalAlignment="Top"/>
-        <my:WateMarkTextBox x:Name="BLE_MAJOR" HorizontalAlignment="Left" Height="20" Margin="107,221,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="63" RenderTransformOrigin="0.474,0.208" FontSize="12" MaxLength="5" WateMark="0~65535">
+        <my:WateMarkTextBox x:Name="BLE_MAJOR" HorizontalAlignment="Left" Height="20" Margin="107,221,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="63" RenderTransformOrigin="0.474,0.208" FontSize="12" MaxLength="5" WateMark="0~65535" Text="{Binding Source={x:Static p:Settings.Default },Path=BT_MAJOR,Mode=TwoWay}">
         </my:WateMarkTextBox>
         <Label Content="BLE MINOR:" HorizontalAlignment="Left" Margin="17,244,0,0" VerticalAlignment="Top"/>
-        <my:WateMarkTextBox x:Name="BLE_MINOR" HorizontalAlignment="Left" Height="20" Margin="107,246,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="63" RenderTransformOrigin="0.474,0.208" FontSize="12" MaxLength="5" WateMark="0~65535">
+        <my:WateMarkTextBox x:Name="BLE_MINOR" HorizontalAlignment="Left" Height="20" Margin="107,246,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="63" RenderTransformOrigin="0.474,0.208" FontSize="12" MaxLength="5" WateMark="0~65535" Text="{Binding Source={x:Static p:Settings.Default },Path=BT_MINOR,Mode=TwoWay}">
         </my:WateMarkTextBox>
-        <Button HorizontalAlignment="Left" VerticalAlignment="Top" Width="84" Margin="119,288,0,0" Height="33" Content="保存"/>
-        <Button Content="取消" HorizontalAlignment="Left" VerticalAlignment="Top" Width="84" Margin="270,288,0,0" Height="33"/>
+        <Button HorizontalAlignment="Left" VerticalAlignment="Top" Width="84" Margin="119,288,0,0" Height="33" Content="保存" Click="Button_Click"/>
+        <Button Content="取消" HorizontalAlignment="Left" VerticalAlignment="Top" Width="84" Margin="270,288,0,0" Height="33" Click="Button_Click_1"/>
+        <Label x:Name="Bat_LevelWarring" Content="" HorizontalAlignment="Left" Margin="270,91,0,0" VerticalAlignment="Top" Foreground="Red"/>
     </Grid>
 </Window>

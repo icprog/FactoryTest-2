@@ -35,7 +35,7 @@ namespace FactoryTest
         public int count = 0;
         private int currentstate = 0;
         private string receiveData;
-        private static string OKString = "-------------OK",FailString= "-------------FAIL";
+        private static string OKString = "-------------OK",FailString= "-------------FAIL",SkipString= "-----------SKIP";
         private string receiveText;
         private delegate void MyDelegate(int value);
         private delegate void UpdateUiRecTextDelegate(string text);
@@ -48,6 +48,7 @@ namespace FactoryTest
         private static String WIFI_SSID = "TP-LINK_8C22";
         private static int gx = 0, gy = 0, gz = 0,WIFI_SCAN_TIMES=0,MAX_WIFI_SCAN_TIMES=3;
         private bool Rec_state;
+        private bool Skip_FunctionTest=false,Skip_Cal_Flag=false,Skip_Final_Flag=false,Skip_Current_Flag=false,Skip_Aging_Flag=false,Skip_Call_Out=false;
         private enum SystemStates
         {
             START_STATE=0,
@@ -58,7 +59,7 @@ namespace FactoryTest
             InitializeComponent();
 
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
-
+            RecFromSettingWindows();
 
 
         }
@@ -157,9 +158,29 @@ namespace FactoryTest
         private void btn_Setting_Click(object sender, RoutedEventArgs e)
         {
             SettingWindows sw = new SettingWindows();
+            sw.CloseWindowsEvent += new CloseSettingWindowsHandler(RecFromSettingWindows);
             sw.ShowDialog();
+           
         }
+        void RecFromSettingWindows()
+        {
+            SW_VERSION = Properties.Settings.Default.SW_Version;
+            MAX_LEVEL = Properties.Settings.Default.Bat_Max_Level * 10;
+            MIN_LEVEL = Properties.Settings.Default.Bat_Min_Level * 10;
+            WIFI_RSSI = Properties.Settings.Default.WIFI_RSSI;
+            WIFI_SSID = Properties.Settings.Default.WIFI_SSID;
+            BLE_RSSI = Properties.Settings.Default.BT_RSSI;
+            BLE_MAJOR = Properties.Settings.Default.BT_MAJOR;
+            BLE_MINOR = Properties.Settings.Default.BT_MINOR;
+            Skip_FunctionTest = Properties.Settings.Default.Skip_Test;
+            Skip_Cal_Flag = Properties.Settings.Default.Skip_Cal;
+            Skip_Final_Flag = Properties.Settings.Default.Skip_Final;
+            Skip_Current_Flag = Properties.Settings.Default.Skip_Current;
+            Skip_Aging_Flag = Properties.Settings.Default.Skip_Aging;
+            Skip_Call_Out = Properties.Settings.Default.Skip_Call_Out;
 
+
+    }
         private void AutoDectionTimer_Tick(int vaule)
         {
 
@@ -702,6 +723,22 @@ namespace FactoryTest
 
             }
         }
+        private void UpdateSkip(int num)
+        {
+            switch(num)
+            {
+                case 23:
+                    {
+                        String str = state_18.Content.ToString();
+                        state_18.Foreground = new SolidColorBrush(Colors.DarkGray);
+                        state_18.Content = str + SkipString;
+                        str = state_19.Content.ToString();
+                        state_19.Foreground = new SolidColorBrush(Colors.DarkGray);
+                        state_19.Content = str + SkipString;
+                    }
+                    break;
+            }
+        }
         private void FactoryTestProgress()
         {
             int i = 120;
@@ -1209,9 +1246,18 @@ namespace FactoryTest
                                     if (receiveData.Contains("\r\nDelet record file sucess") == true)
                                     {
                                         state = 23;
-                                        if(true)currentstate = 46;
-                                        else currentstate = 41;
-                                        Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
+                                        if (Skip_Call_Out)
+                                        {
+                                            currentstate = 46;
+                                            Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
+                                            Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateSkip), state);
+                                        }
+                                        else
+                                        {
+                                            currentstate = 41;
+                                            Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
+                                        } 
+                                       
                                     }
                                 }
                                 else

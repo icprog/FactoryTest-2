@@ -1,7 +1,48 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="uri:settings" CurrentProfile="(Default)">
-  <Profiles>
-    <Profile Name="(Default)" />
-  </Profiles>
-  <Settings />
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="FactoryTest.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="Skip_Test" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="Skip_Cal" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="Skip_Final" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="Skip_Current" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="Skip_Aging" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="Skip_Call_Out" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="Bat_Min_Level" Type="System.Byte" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="Bat_Max_Level" Type="System.Byte" Scope="User">
+      <Value Profile="(Default)">1</Value>
+    </Setting>
+    <Setting Name="SW_Version" Type="System.String" Scope="User">
+      <Value Profile="(Default)">V0.4_201708250950_Debug</Value>
+    </Setting>
+    <Setting Name="WIFI_SSID" Type="System.String" Scope="User">
+      <Value Profile="(Default)">TP-LINK_8C22</Value>
+    </Setting>
+    <Setting Name="WIFI_RSSI" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">-75</Value>
+    </Setting>
+    <Setting Name="BT_RSSI" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">-75</Value>
+    </Setting>
+    <Setting Name="BT_MAJOR" Type="System.UInt16" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="BT_MINOR" Type="System.UInt16" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+  </Settings>
 </SettingsFile>

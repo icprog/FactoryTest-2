@@ -35,3 +35,8 @@ F:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\Gener
 F:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\SettingWindows.baml
 F:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\generic.baml
 F:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\App.baml
+d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\GeneratedInternalTypeHelper.g.cs
+d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\App.baml
+d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\generic.baml
+d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\bin\Debug\FactoryTest.exe.config
+d:\Documents\Visual Studio 2017\Projects\FactoryTest\FactoryTest\obj\Debug\FactoryTest.csprojResolveAssemblyReference.cache
