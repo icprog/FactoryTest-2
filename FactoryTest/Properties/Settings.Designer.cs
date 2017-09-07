@@ -26,18 +26,6 @@ namespace FactoryTest.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool Skip_Test {
-            get {
-                return ((bool)(this["Skip_Test"]));
-            }
-            set {
-                this["Skip_Test"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool Skip_Cal {
             get {
                 return ((bool)(this["Skip_Cal"]));

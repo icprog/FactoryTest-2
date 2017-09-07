@@ -48,10 +48,45 @@ namespace FactoryTest
         private static String WIFI_SSID = "TP-LINK_8C22";
         private static int gx = 0, gy = 0, gz = 0,WIFI_SCAN_TIMES=0,MAX_WIFI_SCAN_TIMES=3;
         private bool Rec_state;
-        private bool Skip_FunctionTest=false,Skip_Cal_Flag=false,Skip_Final_Flag=false,Skip_Current_Flag=false,Skip_Aging_Flag=false,Skip_Call_Out=false;
+        private bool Skip_Cal_Flag=false,Skip_Final_Flag=false,Skip_Current_Flag=false,Skip_Aging_Flag=false,Skip_Call_Out=false;
         private enum SystemStates
         {
-            START_STATE=0,
+            NULL_STATE=0,
+            START_STATE,
+            SKIP_CAL_STATE,
+            SKIP_FINAL_STATE,
+            SKIP_CURRENT_STATE,
+            SKIP_AGING_STATE,
+            SIM_READY_STATE,
+            SIM_IMSI_STATE,
+            SIM_ICCID_STATE,
+            SW_VERSION_STATE,
+            BAT_LEVEL_STATE,
+            WIFI_SCAN_STATE,
+            WIFI_OFF_STATE,
+            DEL_FILE_STATE,
+            BLE_SCAN_STATE,
+            BLE_OFF_STATE,
+            GSENSOR_1_STATE,
+            GSENSOR_2_STATE,
+            LED_START_STATE,
+            LED_STOP_STATE,
+            GPS_OPEN_STATE,
+            GPS_CLOSE_STATE,
+            SPEAK_ON_STATE,
+            SPEAK_OFF_STATE,
+            MIC_TEST_STATE,
+            RECORD_START_STATE,
+            PLAY_SOUND_STATE,
+            MIC_END_STATE,
+            SKIP_CALL_STATE,
+            CALL_OUT_STATE,
+            HANG_UP_STATE,
+            WRITE_FLAG_STATE,
+            SHUTDOWN_START_STATE,
+            SHUTDOWN_END_STATE,
+
+
 
         };
         public MainWindow()
@@ -172,7 +207,6 @@ namespace FactoryTest
             BLE_RSSI = Properties.Settings.Default.BT_RSSI;
             BLE_MAJOR = Properties.Settings.Default.BT_MAJOR;
             BLE_MINOR = Properties.Settings.Default.BT_MINOR;
-            Skip_FunctionTest = Properties.Settings.Default.Skip_Test;
             Skip_Cal_Flag = Properties.Settings.Default.Skip_Cal;
             Skip_Final_Flag = Properties.Settings.Default.Skip_Final;
             Skip_Current_Flag = Properties.Settings.Default.Skip_Current;
@@ -742,7 +776,7 @@ namespace FactoryTest
         private void FactoryTestProgress()
         {
             int i = 120;
-            int state = 0;
+            SystemStates state = SystemStates.NULL_STATE;
             while (i>0)
             {
                 if (serial.IsOpen)
@@ -762,7 +796,7 @@ namespace FactoryTest
                                     if((receiveData.Contains("Already enter TEST_MODE\r\n")==true)||(receiveData.Contains("\r\n#######################Entering factory test!")==true))
                                     {
                                         currentstate = 2;
-                                        state = 1;
+                                        state = SystemStates.START_STATE;
                                         Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
                                         
                                     }
@@ -770,65 +804,179 @@ namespace FactoryTest
                             }break;
                         case 2:
                             {
-                                 
-                                SendData(serial, "AT+TEST=SIM_READY\r\n");
-                                currentstate = 3;
+                                if(Skip_Cal_Flag)
+                                {
+                                    currentstate = 4;
+                                    state = SystemStates.SKIP_CAL_STATE;
+                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateSkip), state);
+                                }
+                                else
+                                {
+                                    SendData(serial, "AT+TEST=READ_CAL\r\n");
+                                    currentstate = 3;
+                                }
+                                
                             }
                             break;
                         case 3:
                             {
-                                if (receiveData.Contains("\r\nSIM_READY\r\n") == true)
+                                if(receiveData.Contains("\r\ncalibation pass\r\n") == true)
                                 {
+                                    state = SystemStates.SKIP_CAL_STATE;
                                     currentstate = 4;
-                                    state = 2;
-                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
+                                }
+                                else if((receiveData.Contains("\r\nnot calibrated\r\n") == true)|| (receiveData.Contains("\r\ncalibation fail\r\n") == true))
+                                {
+                                    state = SystemStates.SKIP_CAL_STATE;
                                 }
                             }
                             break;
                         case 4:
                             {
-                                SendData(serial, "AT+TEST=SIM_IMSI\r\n");
-                                currentstate = 5;
+                                if (Skip_Final_Flag)
+                                {
+                                    currentstate = 6;
+                                    state = SystemStates.SKIP_FINAL_STATE;
+                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateSkip), state);
+                                }
+                                else
+                                {
+                                    SendData(serial, "AT+TEST=READ_FINAL\r\n");
+                                    currentstate = 5;
+                                }
+
                             }
                             break;
                         case 5:
                             {
-                                if (receiveData.Contains("\r\nSIM_IMSI:"+ SIM_IMSI_NUM) == true)
+                                if (receiveData.Contains("\r\nfinal test pass\r\n") == true)
                                 {
+                                    state = SystemStates.SKIP_FINAL_STATE;
                                     currentstate = 6;
-                                    state = 3;
-                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
+                                }
+                                else if ((receiveData.Contains("\r\nnot check final test\r\n") == true) || (receiveData.Contains("\r\nfinal test fail\r\n") == true))
+                                {
+                                    state = SystemStates.SKIP_FINAL_STATE;
                                 }
                             }
                             break;
                         case 6:
                             {
-                                SendData(serial, "AT+TEST=SIM_ICCID\r\n");
-                                currentstate = 7;
+                                if(Skip_Current_Flag)
+                                {
+                                    currentstate = 8;
+                                    state = SystemStates.SKIP_CURRENT_STATE;
+                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateSkip), state);
+                                }
+                                else
+                                {
+                                    SendData(serial, "AT+TEST=READ_CURRENT_FLAG\r\n");
+                                    currentstate = 7;
+                                }
                             }
                             break;
                         case 7:
                             {
-                                if (receiveData.Contains("\r\nWRITE_ICCID SUCESS , SIM_ICCID:") == true)
+                                if (receiveData.Contains("\r\nREAD_CURRENT_FLAG\r\n\r\nOK\r\n") == true)
                                 {
+                                    state = SystemStates.SKIP_CURRENT_STATE;
                                     currentstate = 8;
-                                    state = 4;
-                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
+                                }
+                                else if (receiveData.Contains("\r\nREAD_CURRENT_FLAG\r\n\r\nERROR\r\n") == true)
+                                {
+                                    state = SystemStates.SKIP_CURRENT_STATE;
                                 }
                             }
                             break;
                         case 8:
                             {
-                                SendData(serial, "AT+TEST=SW_VERSION\r\n");
-                                currentstate = 9;
+                                if (Skip_Aging_Flag)
+                                {
+                                    currentstate = 10;
+                                    state = SystemStates.SKIP_AGING_STATE;
+                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateSkip), state);
+                                }
+                                else
+                                {
+                                    SendData(serial, "AT+TEST=READ_AGING_FLAG\r\n");
+                                    currentstate = 9;
+                                }
                             }
                             break;
                         case 9:
                             {
+                                if (receiveData.Contains("\r\nREAD_AGING_FLAG\r\n\r\nOK\r\n") == true)
+                                {
+                                    state = SystemStates.SKIP_AGING_STATE;
+                                    currentstate = 10;
+                                }
+                                else if (receiveData.Contains("\r\nREAD_AGING_FLAG\r\n\r\nERROR\r\n") == true)
+                                {
+                                    state = SystemStates.SKIP_AGING_STATE;
+                                }
+                            }
+                            break;
+                        case 10:
+                            {
+                                 
+                                SendData(serial, "AT+TEST=SIM_READY\r\n");
+                                currentstate = 11;
+                            }
+                            break;
+                        case 11:
+                            {
+                                if (receiveData.Contains("\r\nSIM_READY\r\n") == true)
+                                {
+                                    currentstate = 12;
+                                    state = SystemStates.SIM_READY_STATE;
+                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
+                                }
+                            }
+                            break;
+                        case 12:
+                            {
+                                SendData(serial, "AT+TEST=SIM_IMSI\r\n");
+                                currentstate = 13;
+                            }
+                            break;
+                        case 13:
+                            {
+                                if (receiveData.Contains("\r\nSIM_IMSI:"+ SIM_IMSI_NUM) == true)
+                                {
+                                    currentstate = 14;
+                                    state = SystemStates.SIM_IMSI_STATE;
+                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
+                                }
+                            }
+                            break;
+                        case 14:
+                            {
+                                SendData(serial, "AT+TEST=SIM_ICCID\r\n");
+                                currentstate = 15;
+                            }
+                            break;
+                        case 15:
+                            {
+                                if (receiveData.Contains("\r\nWRITE_ICCID SUCESS , SIM_ICCID:") == true)
+                                {
+                                    currentstate = 16;
+                                    state = SystemStates.SIM_ICCID_STATE;
+                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
+                                }
+                            }
+                            break;
+                        case 16:
+                            {
+                                SendData(serial, "AT+TEST=SW_VERSION\r\n");
+                                currentstate = 17;
+                            }
+                            break;
+                        case 17:
+                            {
                                 if (receiveData.Contains("\r\nSW_VERSION:CMCC-DST1A_" ) == true)
                                 {
-                                    currentstate = 10;
-                                    state = 5;
+                                    currentstate = 18;
+                                    state = SystemStates.SW_VERSION_STATE;
                                     if (receiveData.Contains(SW_VERSION)==true)
                                     {
                                         Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
@@ -843,13 +991,13 @@ namespace FactoryTest
                                 }
                             }
                             break;
-                        case 10:
+                        case 18:
                             {
                                 SendData(serial, "AT+TEST=BATTERY_LEVEL\r\n");
-                                currentstate = 11;
+                                currentstate = 19;
                             }
                             break;
-                        case 11:
+                        case 19:
                             {
                                 if (receiveData.Contains("\r\nBATTERY_LEVEL:") == true)
                                 {
@@ -857,8 +1005,8 @@ namespace FactoryTest
                                     String bat = receiveData.Remove(0, len+14);
                                     bat= bat.Remove(bat.IndexOf('%', 1));
                                     Int16 bat_level = Convert.ToInt16(bat);
-                                    currentstate = 12;
-                                    state = 6;
+                                    currentstate = 20;
+                                    state = SystemStates.BAT_LEVEL_STATE;
                                     if ((bat_level >= MIN_LEVEL)&&(bat_level<=MAX_LEVEL))
                                     {
                                        
@@ -874,13 +1022,13 @@ namespace FactoryTest
                                 }
                             }
                             break;
-                        case 12:
+                        case 20:
                             {
                                 SendData(serial, "AT+TEST=WIFI_SCAN\r\n");
-                                currentstate = 13;
+                                currentstate = 21;
                             }
                             break;
-                        case 13:
+                        case 21:
                             {
                                 if (receiveData.Contains(WIFI_SSID) == true)
                                 {
@@ -890,18 +1038,18 @@ namespace FactoryTest
                                     str = str.Replace(" ", "");
                                     Int16 rssi = Convert.ToInt16(str);
                                     
-                                    state = 7;
+                                    state = SystemStates.WIFI_SCAN_STATE;
 
                                     if (rssi > WIFI_RSSI)
                                     {
-                                        currentstate = 14;
+                                        currentstate = 22;
                                         Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
                                     }
                                     else
                                     {
                                         if (WIFI_SCAN_TIMES < MAX_WIFI_SCAN_TIMES * 2 * 5)
                                         {
-                                            currentstate = 13;
+                                            currentstate = 21;
                                         }
                                         else
                                         {
@@ -919,50 +1067,50 @@ namespace FactoryTest
                                 
                             }
                             break;
-                        case 14:
+                        case 22:
                             {
                                 SendData(serial, "AT+TEST=WIFI_OFF\r\n");
-                                currentstate = 15;
+                                currentstate = 23;
                             }
                             break;
-                        case 15:
+                        case 23:
                             {
                                 if (receiveData.Contains("\r\nWIFI_OFF\r\n") == true)
                                 {
-                                    currentstate = 16;
-                                    state = 8;
+                                    currentstate = 24;
+                                    state = SystemStates.WIFI_OFF_STATE;
                                     Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
                                 }
                                     
                             }
                             break;
-                        case 16:
+                        case 24:
                             {
                                 SendData(serial, "AT+TEST=DEL_TEST_FILE\r\n");
-                                currentstate = 17;
+                                currentstate = 25;
 
                             }
                             break;
-                        case 17:
+                        case 25:
                             {
                                 if (receiveData.Contains("\r\nDelet test file sucess\r\n") == true)
                                 {
-                                    currentstate = 18;
-                                    state = 9;
+                                    currentstate = 26;
+                                    state = SystemStates.DEL_FILE_STATE;
                                     Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
                                 }
                                     
 
                             }
                             break;
-                        case 18:
+                        case 26:
                             {
                                 SendData(serial, "AT+TEST=BT_SCAN\r\n");
-                                currentstate = 19;
+                                currentstate = 27;
 
                             }
                             break;
-                        case 19:
+                        case 27:
                             {
                                 if ((receiveData.Contains(BLE_MAJOR.ToString()) == true)&&(receiveData.Contains(BLE_MINOR.ToString()) == true))
                                 {
@@ -973,13 +1121,13 @@ namespace FactoryTest
                                     Int16 rssi = Convert.ToInt16(str);
                                     if (rssi > BLE_RSSI)
                                     {
-                                        currentstate = 20;
-                                        state = 10;
+                                        currentstate = 28;
+                                        state = SystemStates.BLE_SCAN_STATE;
                                         Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
                                     }
                                     else
                                     {
-                                        state = 10;
+                                        state = SystemStates.BLE_SCAN_STATE;
                                         Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextFailDelegate(UpdateFail), state);
                                     }
 
@@ -988,35 +1136,35 @@ namespace FactoryTest
 
                             }
                             break;
-                        case 20:
+                        case 28:
                             {
                                 SendData(serial, "AT+TEST=BT_OFF\r\n");
-                                currentstate = 21;
+                                currentstate = 29;
 
                             }
                             break;
-                        case 21:
+                        case 29:
                             {
                                 if (receiveData.Contains("\r\nBT_OFF\r\n") == true)
                                 {
-                                    currentstate = 22;
-                                    state = 11;
+                                    currentstate = 30;
+                                    state = SystemStates.BLE_OFF_STATE;
                                     Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
                                 }
 
                             }
                             break;
-                        case 22:
+                        case 30:
                             {
                                 if (Rec_state)
                                 {
                                     SendData(serial, "AT+TEST=GSENSOR\r\n");
-                                    currentstate = 23;
+                                    currentstate = 31;
                                 }
 
                             }
                             break;
-                        case 23:
+                        case 31:
                             {
                                if((receiveData.Contains("\r\ngsensor_x:") == true)&& (receiveData.Contains("\r\ngsensor_y:") == true)&&(receiveData.Contains("\r\ngsensor_z:") == true))
                                 {
@@ -1035,23 +1183,23 @@ namespace FactoryTest
                                     str = str.Substring(len, 3).Replace("\r", "");
                                     str = str.Replace("\n", "");
                                     gz = Convert.ToInt32(str);
-                                    currentstate = 24;
-                                    state = 12;
+                                    currentstate = 32;
+                                    state = SystemStates.GSENSOR_1_STATE;
                                     Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
                                 }
 
                             }
                             break;
-                        case 24:
+                        case 32:
                             {
                                 if(Rec_state)
                                 {
                                     SendData(serial, "AT+TEST=GSENSOR\r\n");
-                                    currentstate = 25;
+                                    currentstate = 33;
                                 }
                             }
                             break;
-                        case 25:
+                        case 33:
                             {
                                 String str = receiveData;
                                 int nx = 0, ny = 0, nz = 0;
@@ -1069,7 +1217,7 @@ namespace FactoryTest
                                 str = str.Substring(len, 3).Replace("\r", "");
                                 str = str.Replace("\n", "");
                                 nz = Convert.ToInt32(str);
-                                state = 13;
+                                state = SystemStates.GSENSOR_2_STATE;
                                 if ((nx==gx)&&(ny==gy)&&(nz==gz))
                                 {
                                     Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextFailDelegate(UpdateFail), state);
@@ -1081,249 +1229,260 @@ namespace FactoryTest
                                     
                                     if (((gz>0)&&(nz<0))|| ((gz < 0) && (nz > 0)))
                                     {
-                                        currentstate = 26;
+                                        currentstate = 34;
                                         Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
                                     }
                                     else
                                     {
-                                        state = 12;
+                                        state = SystemStates.GSENSOR_1_STATE;
                                         Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
-                                        currentstate = 24;
+                                        currentstate = 32;
                                     }
                                 }
                                
                                 
                             }
                             break;
-                        case 26:
+                        case 34:
                             {
                                 SendData(serial, "AT+TEST=LED\r\n");
-                                currentstate = 27;
+                                currentstate = 35;
                             }
                             break;
-                        case 27:
+                        case 35:
                             {
                                 if(receiveData.Contains("\r\nLED blink start\r\n"))
                                 {
-                                    state = 14;
+                                    state = SystemStates.LED_START_STATE;
                                     Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
-                                    currentstate = 28;
+                                    currentstate = 36;
                                 }
                             }break;
-                        case 28:
+                        case 36:
                             {
                                 if(Rec_state)
                                 {
                                     if (receiveData.Contains("\r\nLED blink stop\r\n"))
                                     {
-                                        state = 15;
-                                        currentstate = 29;
+                                        state = SystemStates.LED_STOP_STATE;
+                                        currentstate = 37;
                                         Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);    
                                     }
                                     
                                 }
                                 else
                                 {
-                                    state = 15;
+                                    state = SystemStates.LED_STOP_STATE;
                                     Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextFailDelegate(UpdateFail), state);
                                     if (FactoryTestThread != null) FactoryTestThread.Abort();
                                 }
 
-                            }
-                            break;
-                        case 29:
-                            {
-                                SendData(serial, "AT+TEST=GPS_ON\r\n");
-                                currentstate = 30;
-                            }
-                            break;
-                        case 30:
-                            {
-                               if(receiveData.Contains("latitude:") ==true)
-                                {
-                                    state = 16;
-                                    currentstate = 31;
-                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
-                                }
-                            }
-                            break;
-                        case 31:
-                            {
-                                SendData(serial, "AT+TEST=GPS_OFF\r\n");
-                                currentstate = 32;
-                            }
-                            break;
-                        case 32:
-                            {
-                                if (receiveData.Contains("\r\nGPS_OFF\r\n") == true)
-                                {
-                                    state = 17;
-                                    currentstate = 33;
-                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
-                                }
-                            }
-                            break;
-                        case 33:
-                            {
-                                SendData(serial, "AT+TEST=SPEAKER\r\n");
-                                currentstate = 34;
-                            }
-                            break;
-                        case 34:
-                            {
-                                if(receiveData.Contains("\r\nSPEAKER\r\n") == true)
-                                {
-                                    state = 18;
-                                    currentstate = 35;
-                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
-                                }
-                            }
-                            break;
-                        case 35:
-                            {
-                                if(Rec_state)
-                                {
-                                    if (receiveData.Contains("\r\nPLAY OVER\r\n") == true)
-                                    {
-                                        state = 19;
-                                        currentstate = 36;
-                                        Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
-                                    }
-                                }
-                                else
-                                {
-                                    state = 19;
-                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextFailDelegate(UpdateFail), state);
-                                    if (FactoryTestThread != null) FactoryTestThread.Abort();
-                                }
-
-
-                                
-                            }
-                            break;
-                        case 36:
-                            {
-                                state = 20;
-                                currentstate = 37;
-                                Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
                             }
                             break;
                         case 37:
                             {
-                                if(Rec_state)
-                                {
-                                    SendData(serial, "AT+TEST=MIC\r\n");
-                                    currentstate = 38;
-                                }
-                                
+                                SendData(serial, "AT+TEST=GPS_ON\r\n");
+                                currentstate = 38;
                             }
                             break;
                         case 38:
                             {
-                                if(receiveData.Contains("\r\nSTART RECORD\r\n") ==true)
+                               if(receiveData.Contains("latitude:") ==true)
                                 {
-                                    state = 21;
+                                    state = SystemStates.GPS_OPEN_STATE;
                                     currentstate = 39;
                                     Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
                                 }
-                            }break;
+                            }
+                            break;
                         case 39:
                             {
-                                if(Rec_state)
-                                {
-                                    if(receiveData.Contains("\r\nSTART PLAY SOUND")==true)
-                                    {
-                                        state = 22;
-                                        currentstate = 40;
-                                        Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
-                                    }
-                                }
-                            }break;
+                                SendData(serial, "AT+TEST=GPS_OFF\r\n");
+                                currentstate = 40;
+                            }
+                            break;
                         case 40:
                             {
-                                if (Rec_state)
+                                if (receiveData.Contains("\r\nGPS_OFF\r\n") == true)
                                 {
-                                    if (receiveData.Contains("\r\nDelet record file sucess") == true)
-                                    {
-                                        state = 23;
-                                        if (Skip_Call_Out)
-                                        {
-                                            currentstate = 46;
-                                            Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
-                                            Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateSkip), state);
-                                        }
-                                        else
-                                        {
-                                            currentstate = 41;
-                                            Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
-                                        } 
-                                       
-                                    }
-                                }
-                                else
-                                {
-                                    state = 23;
-                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextFailDelegate(UpdateFail), state);
-                                    if (FactoryTestThread != null) FactoryTestThread.Abort();
+                                    state = SystemStates.GPS_CLOSE_STATE;
+                                    currentstate = 41;
+                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
                                 }
                             }
                             break;
                         case 41:
                             {
-                                SendData(serial, "AT+TEST=CALL_OUT,10086\r\n");
+                                SendData(serial, "AT+TEST=SPEAKER\r\n");
                                 currentstate = 42;
                             }
                             break;
                         case 42:
                             {
-                                if (receiveData.Contains("\r\nCALLING 10086")==true)
+                                if(receiveData.Contains("\r\nSPEAKER\r\n") == true)
                                 {
-                               
-                                    state = 24;
+                                    state = SystemStates.SPEAK_ON_STATE;
                                     currentstate = 43;
                                     Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
                                 }
-                            }break;
+                            }
+                            break;
                         case 43:
+                            {
+                                if(Rec_state)
+                                {
+                                    if (receiveData.Contains("\r\nPLAY OVER\r\n") == true)
+                                    {
+                                        state = SystemStates.SPEAK_OFF_STATE;
+                                        currentstate = 44;
+                                        Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
+                                    }
+                                }
+                                else
+                                {
+                                    state = SystemStates.SPEAK_OFF_STATE;
+                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextFailDelegate(UpdateFail), state);
+                                    if (FactoryTestThread != null) FactoryTestThread.Abort();
+                                }
+
+
+                                
+                            }
+                            break;
+                        case 44:
+                            {
+                                state = SystemStates.MIC_TEST_STATE;
+                                currentstate = 45;
+                                Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
+                            }
+                            break;
+                        case 45:
+                            {
+                                if(Rec_state)
+                                {
+                                    SendData(serial, "AT+TEST=MIC\r\n");
+                                    currentstate = 46;
+                                }
+                                
+                            }
+                            break;
+                        case 46:
+                            {
+                                if(receiveData.Contains("\r\nSTART RECORD\r\n") ==true)
+                                {
+                                    state = SystemStates.RECORD_START_STATE;
+                                    currentstate = 47;
+                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
+                                }
+                            }break;
+                        case 47:
+                            {
+                                if(Rec_state)
+                                {
+                                    if(receiveData.Contains("\r\nSTART PLAY SOUND")==true)
+                                    {
+                                        state = SystemStates.PLAY_SOUND_STATE;
+                                        currentstate = 48;
+                                        Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
+                                    }
+                                }
+                            }break;
+                        case 48:
+                            {
+                                if (Rec_state)
+                                {
+                                    if (receiveData.Contains("\r\nDelet record file sucess") == true)
+                                    {
+                                        state = SystemStates.MIC_END_STATE;
+                                        currentstate = 49;
+                                        Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
+                                       
+                                    }
+                                }
+                                else
+                                {
+                                    state = SystemStates.MIC_END_STATE;
+                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextFailDelegate(UpdateFail), state);
+                                    if (FactoryTestThread != null) FactoryTestThread.Abort();
+                                }
+                            }
+                            break;
+                        case 49:
+                            {
+                                if (Skip_Call_Out)
+                                {
+                                    currentstate = 52;
+                                    state = SystemStates.SKIP_CALL_STATE;
+                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateSkip), state);
+                                }
+                                else
+                                {
+                                    SendData(serial, "AT+TEST=CALL_OUT,10086\r\n");
+                                    currentstate = 50;
+                                }
+                                
+                            }
+                            break;
+                        case 50:
+                            {
+                                if (receiveData.Contains("\r\nCALLING 10086")==true)
+                                {
+                               
+                                    state = SystemStates.SKIP_CALL_STATE;
+                                    currentstate = 51;
+                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
+                                }
+                            }break;
+                        case 51:
                             {
                                if(Rec_state)
                                 {
-                                    state = 25;
-                                    currentstate = 44;
+                                    state = SystemStates.CALL_OUT_STATE;
+                                    currentstate = 52;
                                     Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
                                    
                                     
                                 }
                                else
                                 {
-                                    state = 25;
+                                    state = SystemStates.CALL_OUT_STATE;
                                     Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextFailDelegate(UpdateFail), state);
                                     if (FactoryTestThread != null) FactoryTestThread.Abort();
                                 }
                             }break;
-                        case 44:
+                        case 52:
                             {
+                                if(Skip_Call_Out)
+                                {
+                                    currentstate = 54;
+                                    state = SystemStates.HANG_UP_STATE;
+                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateSkip), state);
+                                }
+                                else
+                                {
                                     SendData(serial, "AT+TEST=HANG_UP\r\n");
-                                    currentstate = 45;
+                                    currentstate = 53;
+                                }
+                                   
                             }
                             break;
-                        case 45:
+                        case 53:
                             {
                                 if (receiveData.Contains("\r\nHANG_UP\r\n") == true)
                                 {
-                                    state = 26;
-                                    currentstate = 46;
+                                    state = SystemStates.HANG_UP_STATE;
+                                    currentstate = 54;
                                     Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
                                 }
                             }
                             break;
-                        case 46:
+                        case 54:
                             {
                                 SendData(serial, "AT+TEST=WRITE_FLAG\r\n");
-                                currentstate = 47;
+                                currentstate = 55;
                             }
                             break;
-                        case 47:
+                        case 55:
                             {
                                 if (receiveData.Contains("\r\nWRITE_FLAG\r\n"))
                                 {
@@ -1332,47 +1491,47 @@ namespace FactoryTest
                                     string sub_string= receiveData.Substring(sec_len, len - sec_len);
                                     if(sub_string.Contains("OK"))
                                     {
-                                        state = 27;
-                                        currentstate = 48;
+                                        state = SystemStates.WRITE_FLAG_STATE;
+                                        currentstate = 56;
                                         Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
                                     }
                                     else if(sub_string.Contains("ERROR"))
                                     {
-                                        state = 27;
+                                        state = SystemStates.WRITE_FLAG_STATE;
                                         Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextFailDelegate(UpdateFail), state);
                                         if (FactoryTestThread != null) FactoryTestThread.Abort();
                                     }
                                  }
                             }
                             break;
-                        case 48:
+                        case 56:
                             {
                                 SendData(serial, "AT+TEST=SHUTDOWN\r\n");
-                                currentstate = 49;
+                                currentstate = 57;
                             }
                             break;
-                        case 49:
+                        case 57:
                             {
                                 if(receiveData.Contains("START SHUTDOWN") ==true)
                                 {
-                                    state = 28;
-                                    currentstate = 50;
+                                    state = SystemStates.SHUTDOWN_START_STATE;
+                                    currentstate = 58;
                                     Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
                                 }
                             }
                             break;
-                        case 50:
+                        case 58:
                             {
                                 if(Rec_state)
                                 {
-                                    state = 29;
-                                    currentstate = 51;
+                                    state = SystemStates.SHUTDOWN_END_STATE;
+                                    currentstate = 59;
                                     Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
                                 }
                                 else
                                 {
-                                    state = 29;
-                                    currentstate = 51;
+                                    state = SystemStates.SHUTDOWN_END_STATE;
+                                    currentstate = 59;
                                     Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextFailDelegate(UpdateFail), state);
                                     if (FactoryTestThread != null) FactoryTestThread.Abort();
                                 }
@@ -1409,7 +1568,10 @@ namespace FactoryTest
             }
 
         }
-       
+        void ResetAllLable()
+        {
+
+        }
 
     }
 }

@@ -5,35 +5,39 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FactoryTest"
         mc:Ignorable="d"
-        Title="MainWindow" Height="640" Width="800" ResizeMode="NoResize">
+        Title="FactoryTest" Height="720" Width="800" ResizeMode="NoResize">
     <Grid>
         <ToggleButton x:Name="btn_Start" Content="开始" HorizontalAlignment="Left" Margin="267,508,0,0" VerticalAlignment="Top" Width="75" Checked="btn_Start_Checked" Unchecked="btn_Start_Unchecked"/>
         <TextBox x:Name="txtDisp" HorizontalAlignment="Stretch" Margin="380,394,14,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="200" Width="400" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" />
         <TextBox x:Name="Rec_TxtBox" HorizontalAlignment="Left" Height="320" Margin="380,40,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="400" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
         <Label Content="接收数据：" HorizontalAlignment="Left" Margin="380,10,0,0" VerticalAlignment="Top" Width="115"/>
         <Label Content="发送数据：" HorizontalAlignment="Left" Margin="380,365,0,0" VerticalAlignment="Top" Width="115"/>
-        <Label x:Name="state_1" Content="1.进入测试模式" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="212"/>
-        <Label x:Name="state_2" Content="2.读取SIM状态" HorizontalAlignment="Left" Margin="10,35,0,0" VerticalAlignment="Top" Width="212"/>
-        <Label x:Name="state_3" Content="3.读取IMSI号码" HorizontalAlignment="Left" Margin="10,60,0,0" VerticalAlignment="Top" Width="212"/>
-        <Label x:Name="state_4" Content="4.读取ICCID号码" HorizontalAlignment="Left" Margin="10,85,0,0" VerticalAlignment="Top" Width="212"/>
-        <Label x:Name="state_5" Content="5.读取软件版本" HorizontalAlignment="Left" Margin="10,110,0,0" VerticalAlignment="Top" Width="212"/>
-        <Label x:Name="state_6" Content="6.读取电池电量" HorizontalAlignment="Left" Margin="10,135,0,0" VerticalAlignment="Top" Width="212"/>
-        <Label x:Name="state_7" Content="7.WIFI扫描测试" HorizontalAlignment="Left" Margin="10,160,0,0" VerticalAlignment="Top" Width="212"/>
-        <Label x:Name="state_8" Content="8.关闭WIFI扫描" HorizontalAlignment="Left" Margin="10,185,0,0" VerticalAlignment="Top" Width="212"/>
-        <Label x:Name="state_9" Content="9.删除文件测试" HorizontalAlignment="Left" Margin="10,210,0,0" VerticalAlignment="Top" Width="212"/>
-        <Label x:Name="state_10" Content="10.BLE扫描测试" HorizontalAlignment="Left" Margin="10,235,0,0" VerticalAlignment="Top" Width="212"/>
-        <Label x:Name="state_11" Content="11.关闭BLE扫描" HorizontalAlignment="Left" Margin="10,260,0,0" VerticalAlignment="Top" Width="212"/>
-        <Label x:Name="state_12" Content="12.加速度计测试" HorizontalAlignment="Left" Margin="10,285,0,0" VerticalAlignment="Top" Width="212"/>
-        <Label x:Name="state_13" Content="13.LED闪烁测试" HorizontalAlignment="Left" Margin="10,310,0,0" VerticalAlignment="Top" Width="212"/>
-        <Label x:Name="state_14" Content="14.GPS搜星测试" HorizontalAlignment="Left" Margin="10,335,0,0" VerticalAlignment="Top" Width="212"/>
-        <Label x:Name="state_15" Content="15.关闭GPS搜星" HorizontalAlignment="Left" Margin="10,360,0,0" VerticalAlignment="Top" Width="212"/>
-        <Label x:Name="state_16" Content="16.喇叭发声测试" HorizontalAlignment="Left" Margin="10,385,0,0" VerticalAlignment="Top" Width="212"/>
-        <Label x:Name="state_17" Content="17.MIC录音测试" HorizontalAlignment="Left" Margin="10,410,0,0" VerticalAlignment="Top" Width="212"/>
-        <Label x:Name="state_18" Content="18.拨打电话测试" HorizontalAlignment="Left" Margin="10,435,0,0" VerticalAlignment="Top" Width="212"/>
-        <Label x:Name="state_19" Content="19.挂断电话测试" HorizontalAlignment="Left" Margin="10,460,0,0" VerticalAlignment="Top" Width="212"/>
-        <Label x:Name="state_20" Content="20.写入完成标志" HorizontalAlignment="Left" Margin="10,485,0,0" VerticalAlignment="Top" Width="212"/>
-        <Label x:Name="state_21" Content="21.关机测试" HorizontalAlignment="Left" Margin="10,510,0,0" VerticalAlignment="Top" Width="212"/>
+        <Label x:Name="state_1" Content="1.进入测试模式" HorizontalAlignment="Left" Margin="10,20,0,0" VerticalAlignment="Top" Width="212"/>
+        <Label x:Name="state_6" Content="6.读取SIM状态" HorizontalAlignment="Left" Margin="10,145,0,0" VerticalAlignment="Top" Width="212"/>
+        <Label x:Name="state_7" Content="7.读取IMSI号码" HorizontalAlignment="Left" Margin="10,170,0,0" VerticalAlignment="Top" Width="212"/>
+        <Label x:Name="state_8" Content="8.读取ICCID号码" HorizontalAlignment="Left" Margin="10,195,0,0" VerticalAlignment="Top" Width="212"/>
+        <Label x:Name="state_9" Content="9.读取软件版本" HorizontalAlignment="Left" Margin="10,220,0,0" VerticalAlignment="Top" Width="212"/>
+        <Label x:Name="state_10" Content="10.读取电池电量" HorizontalAlignment="Left" Margin="10,245,0,0" VerticalAlignment="Top" Width="212"/>
+        <Label x:Name="state_11" Content="11.WIFI扫描测试" HorizontalAlignment="Left" Margin="10,270,0,0" VerticalAlignment="Top" Width="212"/>
+        <Label x:Name="state_12" Content="12.关闭WIFI扫描" HorizontalAlignment="Left" Margin="10,295,0,0" VerticalAlignment="Top" Width="212"/>
+        <Label x:Name="state_13" Content="13.删除文件测试" HorizontalAlignment="Left" Margin="10,320,0,0" VerticalAlignment="Top" Width="212"/>
+        <Label x:Name="state_14" Content="14.BLE扫描测试" HorizontalAlignment="Left" Margin="10,345,0,0" VerticalAlignment="Top" Width="212"/>
+        <Label x:Name="state_15" Content="15.关闭BLE扫描" HorizontalAlignment="Left" Margin="10,370,0,0" VerticalAlignment="Top" Width="212"/>
+        <Label x:Name="state_16" Content="16.加速度计测试" HorizontalAlignment="Left" Margin="10,395,0,0" VerticalAlignment="Top" Width="212"/>
+        <Label x:Name="state_17" Content="17.LED闪烁测试" HorizontalAlignment="Left" Margin="10,420,0,0" VerticalAlignment="Top" Width="212"/>
+        <Label x:Name="state_18" Content="18.GPS搜星测试" HorizontalAlignment="Left" Margin="10,445,0,0" VerticalAlignment="Top" Width="212"/>
+        <Label x:Name="state_19" Content="19.关闭GPS搜星" HorizontalAlignment="Left" Margin="10,470,0,0" VerticalAlignment="Top" Width="212"/>
+        <Label x:Name="state_20" Content="20.喇叭发声测试" HorizontalAlignment="Left" Margin="10,495,0,0" VerticalAlignment="Top" Width="212"/>
+        <Label x:Name="state_21" Content="21.MIC录音测试" HorizontalAlignment="Left" Margin="10,520,0,0" VerticalAlignment="Top" Width="212"/>
+        <Label x:Name="state_22" Content="22.拨打电话测试" HorizontalAlignment="Left" Margin="10,545,0,0" VerticalAlignment="Top" Width="212"/>
+        <Label x:Name="state_23" Content="23.挂断电话测试" HorizontalAlignment="Left" Margin="10,570,0,0" VerticalAlignment="Top" Width="212"/>
+        <Label x:Name="state_24" Content="24.写入完成标志" HorizontalAlignment="Left" Margin="10,595,0,0" VerticalAlignment="Top" Width="212"/>
+        <Label x:Name="state_25" Content="25.关机测试" HorizontalAlignment="Left" Margin="10,620,0,0" VerticalAlignment="Top" Width="212"/>
         <Button x:Name="btn_Setting" Content="设置" HorizontalAlignment="Left" Margin="267,550,0,0" VerticalAlignment="Top" Width="75" Click="btn_Setting_Click"/>
+        <Label x:Name="state_2" Content="2.检测校准标志" HorizontalAlignment="Left" Margin="10,45,0,0" VerticalAlignment="Top" Width="212"/>
+        <Label x:Name="state_3" Content="3.综测标志检测" HorizontalAlignment="Left" Margin="10,70,0,0" VerticalAlignment="Top" Width="212"/>
+        <Label x:Name="state_4" Content="4.电流测试检测" HorizontalAlignment="Left" Margin="10,95,0,0" VerticalAlignment="Top" Width="212"/>
+        <Label x:Name="state_5" Content="5.老化试验检测" HorizontalAlignment="Left" Margin="10,120,0,0" VerticalAlignment="Top" Width="212"/>
 
     </Grid>
 </Window>

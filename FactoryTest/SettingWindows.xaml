@@ -14,12 +14,11 @@
 
 
         </Grid.Resources>
-        <CheckBox x:Name="Test_Flag" Content="跳过检测测试完成标志" HorizontalAlignment="Left" Margin="10,21,0,0" VerticalAlignment="Top" IsChecked="{Binding Source={x:Static p:Settings.Default },Path=Skip_Test,Mode=TwoWay}" />
-        <CheckBox x:Name="Cal_Flag" Content="跳过检测校准完成标志" HorizontalAlignment="Left" Margin="237,21,0,0" VerticalAlignment="Top" IsChecked="{Binding Source={x:Static p:Settings.Default },Path=Skip_Cal,Mode=TwoWay}" />
-        <CheckBox x:Name="Final_Flag" Content="跳过检测综测完成标志" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top" IsChecked="{Binding Source={x:Static p:Settings.Default },Path=Skip_Final,Mode=TwoWay}" />
-        <CheckBox x:Name="Current_Flag" Content="跳过电流测试通过标志" HorizontalAlignment="Left" Margin="237,41,0,0" VerticalAlignment="Top" IsChecked="{Binding Source={x:Static p:Settings.Default },Path=Skip_Current,Mode=TwoWay}" />
-        <CheckBox x:Name="Aging_Flag" Content="跳过老化试验通过标志" HorizontalAlignment="Left" Margin="10,61,0,0" VerticalAlignment="Top" IsChecked="{Binding Source={x:Static p:Settings.Default },Path=Skip_Aging,Mode=TwoWay}" />
-        <CheckBox x:Name="NoCallOut_Flag" Content="跳过拨打电话" HorizontalAlignment="Left" Margin="237,61,0,0" VerticalAlignment="Top" IsChecked="{Binding Source={x:Static p:Settings.Default },Path=Skip_Call_Out,Mode=TwoWay}" />
+        <CheckBox x:Name="Cal_Flag" Content="跳过检测校准完成标志" HorizontalAlignment="Left" Margin="10,21,0,0" VerticalAlignment="Top" IsChecked="{Binding Source={x:Static p:Settings.Default },Path=Skip_Cal,Mode=TwoWay}" />
+        <CheckBox x:Name="Final_Flag" Content="跳过检测综测完成标志" HorizontalAlignment="Left" Margin="237,21,0,0" VerticalAlignment="Top" IsChecked="{Binding Source={x:Static p:Settings.Default },Path=Skip_Final,Mode=TwoWay}" />
+        <CheckBox x:Name="Current_Flag" Content="跳过电流测试通过标志" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top" IsChecked="{Binding Source={x:Static p:Settings.Default },Path=Skip_Current,Mode=TwoWay}" />
+        <CheckBox x:Name="Aging_Flag" Content="跳过老化试验通过标志" HorizontalAlignment="Left" Margin="237,41,0,0" VerticalAlignment="Top" IsChecked="{Binding Source={x:Static p:Settings.Default },Path=Skip_Aging,Mode=TwoWay}" />
+        <CheckBox x:Name="NoCallOut_Flag" Content="跳过拨打电话" HorizontalAlignment="Left" Margin="10,61,0,0" VerticalAlignment="Top" IsChecked="{Binding Source={x:Static p:Settings.Default },Path=Skip_Call_Out,Mode=TwoWay}" />
         <Label Content="电池电量范围:" HorizontalAlignment="Left" Margin="17,91,0,0" VerticalAlignment="Top"/>
         <ComboBox x:Name="MinLevel" HorizontalAlignment="Left" Margin="107,93,0,0" VerticalAlignment="Top" Width="63" SelectedIndex="{Binding Source={x:Static p:Settings.Default },Path=Bat_Min_Level,Mode=TwoWay}" DropDownClosed="MinLevel_DropDownClosed" DropDownOpened="MinLevel_DropDownOpened" >
             <System:String>0%</System:String>
