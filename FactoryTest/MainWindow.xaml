@@ -5,13 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FactoryTest"
         mc:Ignorable="d"
-        Title="FactoryTest" Height="720" Width="800" ResizeMode="NoResize">
+        Title="FactoryTest" Height="720" Width="880" ResizeMode="NoResize">
     <Grid>
         <ToggleButton x:Name="btn_Start" Content="开始" HorizontalAlignment="Left" Margin="267,508,0,0" VerticalAlignment="Top" Width="75" Checked="btn_Start_Checked" Unchecked="btn_Start_Unchecked"/>
-        <TextBox x:Name="txtDisp" HorizontalAlignment="Stretch" Margin="380,394,14,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="200" Width="400" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" />
-        <TextBox x:Name="Rec_TxtBox" HorizontalAlignment="Left" Height="320" Margin="380,40,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="400" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
-        <Label Content="接收数据：" HorizontalAlignment="Left" Margin="380,10,0,0" VerticalAlignment="Top" Width="115"/>
-        <Label Content="发送数据：" HorizontalAlignment="Left" Margin="380,365,0,0" VerticalAlignment="Top" Width="115"/>
+        <TextBox x:Name="txtDisp" HorizontalAlignment="Stretch" Margin="420,400,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="270" Width="400" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" />
+        <TextBox x:Name="Rec_TxtBox" HorizontalAlignment="Stretch" Height="320" Margin="420,40,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="400" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
+        <Label Content="接收数据：" HorizontalAlignment="Left" Margin="447,10,0,0" VerticalAlignment="Top" Width="115"/>
+        <Label Content="发送数据：" HorizontalAlignment="Left" Margin="447,370,0,0" VerticalAlignment="Top" Width="115"/>
         <Label x:Name="state_1" Content="1.进入测试模式" HorizontalAlignment="Left" Margin="10,20,0,0" VerticalAlignment="Top" Width="212"/>
         <Label x:Name="state_6" Content="6.读取SIM状态" HorizontalAlignment="Left" Margin="10,145,0,0" VerticalAlignment="Top" Width="212"/>
         <Label x:Name="state_7" Content="7.读取IMSI号码" HorizontalAlignment="Left" Margin="10,170,0,0" VerticalAlignment="Top" Width="212"/>
@@ -38,6 +38,16 @@
         <Label x:Name="state_3" Content="3.综测标志检测" HorizontalAlignment="Left" Margin="10,70,0,0" VerticalAlignment="Top" Width="212"/>
         <Label x:Name="state_4" Content="4.电流测试检测" HorizontalAlignment="Left" Margin="10,95,0,0" VerticalAlignment="Top" Width="212"/>
         <Label x:Name="state_5" Content="5.老化试验检测" HorizontalAlignment="Left" Margin="10,120,0,0" VerticalAlignment="Top" Width="212"/>
+        <Label x:Name="Final_State" Content="" HorizontalAlignment="Left" Margin="235,23,0,0" VerticalAlignment="Top" Height="100" Width="200" FontSize="72" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Background="White" Foreground="Blue" FontFamily="Microsoft YaHei"/>
+        <Label x:Name="Tick_Lable" Content="00:00:00" HorizontalAlignment="Left" Margin="291,200,0,0" VerticalAlignment="Top" FontSize="24"/>
+        <Label x:Name="Tick_Lable_Copy" Content="测试时间：" HorizontalAlignment="Left" Margin="280,155,0,0" VerticalAlignment="Top" FontSize="24" RenderTransformOrigin="0.7,0"/>
+        <Label x:Name="SysteamState_Lable" Content="" HorizontalAlignment="Left" Margin="227,245,0,0" VerticalAlignment="Top" FontSize="14" RenderTransformOrigin="0.7,0" Width="215" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <Label x:Name="Total_Num_lable" Content="0" HorizontalAlignment="Left" Margin="309,300,0,0" VerticalAlignment="Top" FontSize="24" Width="126" HorizontalContentAlignment="Center"/>
+        <Label x:Name="Tick_Lable_Copy2" Content="Total:" HorizontalAlignment="Left" Margin="227,300,0,0" VerticalAlignment="Top" FontSize="24" RenderTransformOrigin="0.7,0" HorizontalContentAlignment="Center"/>
+        <Label x:Name="Pass_Num_lable" Content="0" HorizontalAlignment="Left" Margin="309,345,0,0" VerticalAlignment="Top" FontSize="24" Width="126" HorizontalContentAlignment="Center"/>
+        <Label x:Name="Tick_Lable_Copy4" Content="Pass:" HorizontalAlignment="Left" Margin="227,345,0,0" VerticalAlignment="Top" FontSize="24" RenderTransformOrigin="0.7,0" Width="73" HorizontalContentAlignment="Center"/>
+        <Label x:Name="Tick_Lable_Copy5" Content="Fail:" HorizontalAlignment="Left" Margin="227,390,0,0" VerticalAlignment="Top" FontSize="24" RenderTransformOrigin="0.7,0" Width="73" HorizontalContentAlignment="Center"/>
+        <Label x:Name="Fail_Num_Lable" Content="0" HorizontalAlignment="Left" Margin="309,390,0,0" VerticalAlignment="Top" FontSize="24" Width="126" HorizontalContentAlignment="Center"/>
 
     </Grid>
 </Window>

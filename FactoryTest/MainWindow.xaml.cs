@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO.Ports;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -18,6 +19,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using USB;
+using System.Timers;
 namespace FactoryTest
 {
     /// <summary>
@@ -36,12 +38,10 @@ namespace FactoryTest
         private int currentstate = 0;
         private string receiveData;
         private static string OKString = "-------------OK",FailString= "-------------FAIL",SkipString= "-----------SKIP";
-        private string receiveText;
         private delegate void MyDelegate(int value);
         private delegate void UpdateUiRecTextDelegate(string text);
         private delegate void UpdateUiSendTextDelegate(string text);
-        private delegate void UpdateUiTextColorDelegate(int num);
-        private delegate void UpdateUiTextFailDelegate(int num);
+       
         private static String SIM_IMSI_NUM = "460";
         private static String SW_VERSION = "V0.4_201708250950_Debug";
         private static int MAX_LEVEL = 100, MIN_LEVEL = 50, WIFI_RSSI = -55, BLE_RSSI = -75, BLE_MAJOR = 37022, BLE_MINOR=402;
@@ -49,6 +49,15 @@ namespace FactoryTest
         private static int gx = 0, gy = 0, gz = 0,WIFI_SCAN_TIMES=0,MAX_WIFI_SCAN_TIMES=3;
         private bool Rec_state;
         private bool Skip_Cal_Flag=false,Skip_Final_Flag=false,Skip_Current_Flag=false,Skip_Aging_Flag=false,Skip_Call_Out=false;
+        private System.Timers.Timer time ;
+        private Stopwatch sw; //秒表对象
+        TimeSpan ts;
+        private enum TestStates
+        {
+            NULL_STATE,
+            SUCCESS_STATE,
+            FAILE_STATE,
+        };
         private enum SystemStates
         {
             NULL_STATE=0,
@@ -89,6 +98,11 @@ namespace FactoryTest
 
 
         };
+        private TestStates testStates = TestStates.NULL_STATE;
+        private delegate void UpdateUiTextColorDelegate(SystemStates num);
+        private delegate void UpdateUiTextTestStateDelegate(TestStates num);
+        private delegate void UpdateTick(TimeSpan ts);
+
         public MainWindow()
         {
             InitializeComponent();
@@ -147,19 +161,51 @@ namespace FactoryTest
         {
             //autoDetectionTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
             //autoDetectionTimer.Tick += new EventHandler(AutoDectionTimer_Tick);
+
             btn_Start.Content = "停止";
+            ResetAllLable();
             count = 0;
+            currentstate = 0;
             //autoDetectionTimer.Start();
             thread = new Thread(EndTest);
             thread.Start();
+            Tick_Lable.Content = "00:00:00";
+            time = new System.Timers.Timer();
+            sw = new Stopwatch();
+            time.Elapsed += new ElapsedEventHandler(time_Tick);  //时钟触发信号
+            time.Interval = 1000;
+            time.Enabled = true;
+
+
+
+            //设置是否重复计时，如果该属性设为False,则只执行timer_Elapsed方法一次。
+            time.AutoReset = true;
+            sw.Start();
+            time.Start();
+            Final_State.Foreground = new SolidColorBrush(Colors.Green);
+            Final_State.Content = "RUN";
         }
 
         private void btn_Start_Unchecked(object sender, RoutedEventArgs e)
         {
             btn_Start.Content = "开始";
-            if (serial.IsOpen) serial.Close();
+           
+            if (serial.IsOpen)
+            {
+                serial.Close();
+                serial.Dispose();
+            }
             if (thread != null) thread.Abort();
             if (FactoryTestThread != null) FactoryTestThread.Abort();
+            if(sw!=null)
+            sw.Stop();
+            if(time!=null)
+            {
+                time.Stop();
+                time.Dispose();
+            }
+            Final_State.Foreground = new SolidColorBrush(Colors.Black);
+            Final_State.Content = "FAIL";
             //autoDetectionTimer.Stop();
         }
         public  void EndTest()
@@ -183,10 +229,19 @@ namespace FactoryTest
 
         private void DectionTimeOut(int value)
         {
-            txtDisp.Text = "搜索设备超时\r\n";
+            SysteamState_Lable.Content = "搜索设备超时\r\n";
             //btn_Start.Checked -= btn_Start_Checked;
             //btn_Start.Unchecked -= btn_Start_Unchecked;
+            if (sw != null)
+                sw.Stop();
+            if (time != null)
+            {
+                time.Stop();
+                time.Dispose();
+            }
             btn_Start.IsChecked = false;
+            Final_State.Foreground = new SolidColorBrush(Colors.Black);
+            Final_State.Content = "STOP";
 
         }
 
@@ -215,6 +270,17 @@ namespace FactoryTest
 
 
     }
+        void time_Tick(object sender, ElapsedEventArgs e)
+        {
+            ts = sw.Elapsed;
+            Dispatcher.Invoke(DispatcherPriority.Send, new UpdateTick(UpdataTime), ts);
+
+        }
+        void UpdataTime(TimeSpan ts)
+        {
+
+            Tick_Lable.Content = Regex.Replace(ts.ToString(), @"\.\d+$", string.Empty);
+        }
         private void AutoDectionTimer_Tick(int vaule)
         {
 
@@ -230,7 +296,7 @@ namespace FactoryTest
                         count++;
                         if (count >= 4)
                         {
-                            txtDisp.Text = "发现设备！\r\n";
+                            SysteamState_Lable.Content = "发现设备！\r\n";
                             if(thread!=null)
                             thread.Abort();
                             try
@@ -249,12 +315,27 @@ namespace FactoryTest
                                
                                 FactoryTestThread = new Thread(FactoryTestProgress);
                                 FactoryTestThread.Start();
+                                
+                                
                             }
                             catch
                             {
-                                txtDisp.Text = "无法连接到设备，请检查后重试！\r\n";
+                                SysteamState_Lable.Content = "无法连接到设备，请检查后重试！\r\n";
                                 btn_Start.IsChecked = false;
-                                if (serial.IsOpen) serial.Close();
+                                if (serial!=null)
+                                {
+                                    serial.Close();
+                                    serial.Dispose();
+                                } 
+                                if (sw != null)
+                                    sw.Stop();
+                                if (time != null)
+                                {
+                                    time.Stop();
+                                    time.Dispose();
+                                }
+                                Final_State.Foreground = new SolidColorBrush(Colors.Black);
+                                Final_State.Content = "STOP";
                             }
 
                             //autoDetectionTimer.Stop();
@@ -263,12 +344,12 @@ namespace FactoryTest
                         {
                             switch (vaule % 6)
                             {
-                                case 5: txtDisp.Text = "正在搜索设备·"; break;
-                                case 4: txtDisp.Text = "正在搜索设备··"; break;
-                                case 3: txtDisp.Text = "正在搜索设备···"; break;
-                                case 2: txtDisp.Text = "正在搜索设备····"; break;
-                                case 1: txtDisp.Text = "正在搜索设备·····"; break;
-                                case 0: txtDisp.Text = "正在搜索设备······"; break;
+                                case 5: SysteamState_Lable.Content = "正在搜索设备·"; break;
+                                case 4: SysteamState_Lable.Content = "正在搜索设备··"; break;
+                                case 3: SysteamState_Lable.Content = "正在搜索设备···"; break;
+                                case 2: SysteamState_Lable.Content = "正在搜索设备····"; break;
+                                case 1: SysteamState_Lable.Content = "正在搜索设备·····"; break;
+                                case 0: SysteamState_Lable.Content = "正在搜索设备······"; break;
                             }
                         }
 
@@ -277,12 +358,12 @@ namespace FactoryTest
                     {
                         switch (vaule % 6)
                         {
-                            case 5: txtDisp.Text = "正在搜索设备·"; break;
-                            case 4: txtDisp.Text = "正在搜索设备··"; break;
-                            case 3: txtDisp.Text = "正在搜索设备···"; break;
-                            case 2: txtDisp.Text = "正在搜索设备····"; break;
-                            case 1: txtDisp.Text = "正在搜索设备·····"; break;
-                            case 0: txtDisp.Text = "正在搜索设备······"; break;
+                            case 5: SysteamState_Lable.Content = "正在搜索设备·"; break;
+                            case 4: SysteamState_Lable.Content = "正在搜索设备··"; break;
+                            case 3: SysteamState_Lable.Content = "正在搜索设备···"; break;
+                            case 2: SysteamState_Lable.Content = "正在搜索设备····"; break;
+                            case 1: SysteamState_Lable.Content = "正在搜索设备·····"; break;
+                            case 0: SysteamState_Lable.Content = "正在搜索设备······"; break;
                         }
                     }
                 }
@@ -290,12 +371,12 @@ namespace FactoryTest
                 {
                     switch(vaule%6)
                     {
-                        case 5: txtDisp.Text = "正在搜索设备·";break;
-                        case 4: txtDisp.Text = "正在搜索设备··"; break;
-                        case 3: txtDisp.Text = "正在搜索设备···"; break;
-                        case 2: txtDisp.Text = "正在搜索设备····"; break;
-                        case 1: txtDisp.Text = "正在搜索设备·····"; break;
-                        case 0: txtDisp.Text = "正在搜索设备······"; break;
+                        case 5: SysteamState_Lable.Content = "正在搜索设备·";break;
+                        case 4: SysteamState_Lable.Content = "正在搜索设备··"; break;
+                        case 3: SysteamState_Lable.Content = "正在搜索设备···"; break;
+                        case 2: SysteamState_Lable.Content = "正在搜索设备····"; break;
+                        case 1: SysteamState_Lable.Content = "正在搜索设备·····"; break;
+                        case 0: SysteamState_Lable.Content = "正在搜索设备······"; break;
                     }
                     
                 }
@@ -314,7 +395,6 @@ namespace FactoryTest
         }
         private void ShowData(string text)
         {
-             receiveText += text;
 
             //更新接收字节数
             //receiveBytesCount += (UInt32)receiveText.Length;
@@ -348,7 +428,7 @@ namespace FactoryTest
 
 
         }
-        private void UpdateColor(int num)
+        private void UpdateColor(SystemStates num)
         {
 
 
@@ -362,79 +442,107 @@ namespace FactoryTest
 
             switch(num)
             {
-                case 1:
+                case SystemStates.START_STATE:
                     {
                         String str = state_1.Content.ToString();
                          state_1.Foreground = new SolidColorBrush(Colors.Blue);
                         state_1.Content = str+ OKString;
                     }break;
-                case 2:
+                case SystemStates.SKIP_CAL_STATE:
                     {
                         String str = state_2.Content.ToString();
                         state_2.Foreground = new SolidColorBrush(Colors.Blue);
-                        state_2.Content = str+ OKString;
+                        state_2.Content = str + OKString;
                     }
                     break;
-                case 3:
+                case SystemStates.SKIP_FINAL_STATE:
                     {
                         String str = state_3.Content.ToString();
                         state_3.Foreground = new SolidColorBrush(Colors.Blue);
                         state_3.Content = str + OKString;
-                    }break;
-                case 4:
+                    }
+                    break;
+                case SystemStates.SKIP_CURRENT_STATE:
                     {
                         String str = state_4.Content.ToString();
                         state_4.Foreground = new SolidColorBrush(Colors.Blue);
                         state_4.Content = str + OKString;
                     }
                     break;
-                case 5:
+                case SystemStates.SKIP_AGING_STATE:
                     {
                         String str = state_5.Content.ToString();
                         state_5.Foreground = new SolidColorBrush(Colors.Blue);
                         state_5.Content = str + OKString;
                     }
                     break;
-                case 6:
+                case SystemStates.SIM_READY_STATE:
                     {
                         String str = state_6.Content.ToString();
                         state_6.Foreground = new SolidColorBrush(Colors.Blue);
-                        state_6.Content = str + OKString;
+                        state_6.Content = str+ OKString;
                     }
                     break;
-                case 7:
+                case SystemStates.SIM_IMSI_STATE:
                     {
                         String str = state_7.Content.ToString();
                         state_7.Foreground = new SolidColorBrush(Colors.Blue);
                         state_7.Content = str + OKString;
-                    }
-                    break;
-                case 8:
+                    }break;
+                case SystemStates.SIM_ICCID_STATE:
                     {
                         String str = state_8.Content.ToString();
                         state_8.Foreground = new SolidColorBrush(Colors.Blue);
                         state_8.Content = str + OKString;
                     }
                     break;
-                case 9:
+                case SystemStates.SW_VERSION_STATE:
                     {
                         String str = state_9.Content.ToString();
                         state_9.Foreground = new SolidColorBrush(Colors.Blue);
                         state_9.Content = str + OKString;
                     }
                     break;
-                case 10:
+                case SystemStates.BAT_LEVEL_STATE:
                     {
                         String str = state_10.Content.ToString();
                         state_10.Foreground = new SolidColorBrush(Colors.Blue);
                         state_10.Content = str + OKString;
                     }
                     break;
-                case 11:
+                case SystemStates.WIFI_SCAN_STATE:
                     {
                         String str = state_11.Content.ToString();
                         state_11.Foreground = new SolidColorBrush(Colors.Blue);
                         state_11.Content = str + OKString;
+                    }
+                    break;
+                case SystemStates.WIFI_OFF_STATE:
+                    {
+                        String str = state_12.Content.ToString();
+                        state_12.Foreground = new SolidColorBrush(Colors.Blue);
+                        state_12.Content = str + OKString;
+                    }
+                    break;
+                case SystemStates.DEL_FILE_STATE:
+                    {
+                        String str = state_13.Content.ToString();
+                        state_13.Foreground = new SolidColorBrush(Colors.Blue);
+                        state_13.Content = str + OKString;
+                    }
+                    break;
+                case SystemStates.BLE_SCAN_STATE:
+                    {
+                        String str = state_14.Content.ToString();
+                        state_14.Foreground = new SolidColorBrush(Colors.Blue);
+                        state_14.Content = str + OKString;
+                    }
+                    break;
+                case SystemStates.BLE_OFF_STATE:
+                    {
+                        String str = state_15.Content.ToString();
+                        state_15.Foreground = new SolidColorBrush(Colors.Blue);
+                        state_15.Content = str + OKString;
                         ShowMessage sw = new ShowMessage(false, "请平放设备以便测试GSENSOR !",2);
                         sw.Owner = this;
                         Rec_state = false;
@@ -442,7 +550,7 @@ namespace FactoryTest
                         sw.ShowDialog();
                     }
                     break;
-                case 12:
+                case SystemStates.GSENSOR_1_STATE:
                     {
                         ShowMessage sw = new ShowMessage(false, "请翻转设备 !",0);
                         sw.Owner = this;
@@ -454,14 +562,14 @@ namespace FactoryTest
 
                     }
                     break;
-                case 13:
+                case SystemStates.GSENSOR_2_STATE:
                     {
-                        String str = state_12.Content.ToString();
-                        state_12.Foreground = new SolidColorBrush(Colors.Blue);
-                        state_12.Content = str + OKString;
+                        String str = state_16.Content.ToString();
+                        state_16.Foreground = new SolidColorBrush(Colors.Blue);
+                        state_16.Content = str + OKString;
                     }
                     break;
-                case 14:
+                case SystemStates.LED_START_STATE:
                     {
                         ShowMessage sw = new ShowMessage(true, "LED是否闪烁 ？", 0);
                         sw.Owner = this;
@@ -472,28 +580,28 @@ namespace FactoryTest
                         sw.ShowDialog();
                     }
                     break;
-                case 15:
+                case SystemStates.LED_STOP_STATE:
                     {
-                        String str = state_13.Content.ToString();
-                        state_13.Foreground = new SolidColorBrush(Colors.Blue);
-                        state_13.Content = str + OKString;
+                        String str = state_17.Content.ToString();
+                        state_17.Foreground = new SolidColorBrush(Colors.Blue);
+                        state_17.Content = str + OKString;
                     }
                     break;
-                case 16:
+                case SystemStates.GPS_OPEN_STATE:
                     {
-                        String str = state_14.Content.ToString();
-                        state_14.Foreground = new SolidColorBrush(Colors.Blue);
-                        state_14.Content = str + OKString;
+                        String str = state_18.Content.ToString();
+                        state_18.Foreground = new SolidColorBrush(Colors.Blue);
+                        state_18.Content = str + OKString;
                     }
                     break;
-                case 17:
+                case SystemStates.GPS_CLOSE_STATE:
                     {
-                        String str = state_15.Content.ToString();
-                        state_15.Foreground = new SolidColorBrush(Colors.Blue);
-                        state_15.Content = str + OKString;
+                        String str = state_19.Content.ToString();
+                        state_19.Foreground = new SolidColorBrush(Colors.Blue);
+                        state_19.Content = str + OKString;
                     }
                     break;
-                case 18:
+                case SystemStates.SPEAK_ON_STATE:
                     {
                         ShowMessage sw = new ShowMessage(true, "扬声器是否有声音 ？", 0);
                         sw.Owner = this;
@@ -504,13 +612,13 @@ namespace FactoryTest
                         sw.ShowDialog();
                     }
                     break;
-                case 19:
+                case SystemStates.SPEAK_OFF_STATE:
                     {
-                        String str = state_16.Content.ToString();
-                        state_16.Foreground = new SolidColorBrush(Colors.Blue);
-                        state_16.Content = str + OKString;
+                        String str = state_20.Content.ToString();
+                        state_20.Foreground = new SolidColorBrush(Colors.Blue);
+                        state_20.Content = str + OKString;
                     }break;
-                case 20:
+                case SystemStates.MIC_TEST_STATE:
                     {
                         ShowMessage sw = new ShowMessage(false, "MIC测试开始，2S后将开始录音", 2);
                         sw.Owner = this;
@@ -521,7 +629,7 @@ namespace FactoryTest
                         sw.ShowDialog();
                     }
                     break;
-                case 21:
+                case SystemStates.RECORD_START_STATE:
                     {
                         ShowMessage sw = new ShowMessage(false, "正在进行录音，录音将持续5S", 5);
                         sw.Owner = this;
@@ -532,7 +640,7 @@ namespace FactoryTest
                         sw.ShowDialog();
                     }
                     break;
-                case 22:
+                case SystemStates.PLAY_SOUND_STATE:
                     {
                         ShowMessage sw = new ShowMessage(true, "扬声器播放的是否是刚才录制的声音？",0);
                         sw.Owner = this;
@@ -543,14 +651,14 @@ namespace FactoryTest
                         sw.ShowDialog();
                     }
                     break;
-                case 23:
+                case SystemStates.MIC_END_STATE:
                     {
-                        String str = state_17.Content.ToString();
-                        state_17.Foreground = new SolidColorBrush(Colors.Blue);
-                        state_17.Content = str + OKString;
+                        String str = state_21.Content.ToString();
+                        state_21.Foreground = new SolidColorBrush(Colors.Blue);
+                        state_21.Content = str + OKString;
                     }
                     break;
-                case 24:
+                case SystemStates.SKIP_CALL_STATE:
                     {
                         ShowMessage sw = new ShowMessage(true, "是否拨通10086？", 0);
                         sw.Owner = this;
@@ -561,28 +669,28 @@ namespace FactoryTest
                         sw.ShowDialog();
                     }
                     break;
-                case 25:
+                case SystemStates.CALL_OUT_STATE:
                     {
-                        String str = state_18.Content.ToString();
-                        state_18.Foreground = new SolidColorBrush(Colors.Blue);
-                        state_18.Content = str + OKString;
+                        String str = state_22.Content.ToString();
+                        state_22.Foreground = new SolidColorBrush(Colors.Blue);
+                        state_22.Content = str + OKString;
                     }
                     break;
-                case 26:
+                case SystemStates.HANG_UP_STATE:
                     {
-                        String str = state_19.Content.ToString();
-                        state_19.Foreground = new SolidColorBrush(Colors.Blue);
-                        state_19.Content = str + OKString;
+                        String str = state_23.Content.ToString();
+                        state_23.Foreground = new SolidColorBrush(Colors.Blue);
+                        state_23.Content = str + OKString;
                     }
                     break;
-                case 27:
+                case SystemStates.WRITE_FLAG_STATE:
                     {
-                        String str = state_20.Content.ToString();
-                        state_20.Foreground = new SolidColorBrush(Colors.Blue);
-                        state_20.Content = str + OKString;
+                        String str = state_24.Content.ToString();
+                        state_24.Foreground = new SolidColorBrush(Colors.Blue);
+                        state_24.Content = str + OKString;
                     }
                     break;
-                case 28:
+                case SystemStates.SHUTDOWN_START_STATE:
                     {
                         ShowMessage sw = new ShowMessage(true, "设备是否关机", 0);
                         sw.Owner = this;
@@ -593,11 +701,11 @@ namespace FactoryTest
                         sw.ShowDialog();
                     }
                     break;
-                case 29:
+                case SystemStates.SHUTDOWN_END_STATE:
                     {
-                        String str = state_21.Content.ToString();
-                        state_21.Foreground = new SolidColorBrush(Colors.Blue);
-                        state_21.Content = str + OKString;
+                        String str = state_25.Content.ToString();
+                        state_25.Foreground = new SolidColorBrush(Colors.Blue);
+                        state_25.Content = str + OKString;
                     }
                     break;
             }
@@ -614,47 +722,93 @@ namespace FactoryTest
             if (state == true) Rec_state = true;
             else Rec_state = false ;
         }
-        private void UpdateFail(int num)
+        private void UpdateTestSTATE(TestStates num)
         {
-            //更新接收字节数
-            //receiveBytesCount += (UInt32)receiveText.Length;
-            //statusReceiveByteTextBlock.Text = receiveBytesCount.ToString();
+            if(num==TestStates.FAILE_STATE)
+            {
+                Final_State.Foreground = new SolidColorBrush(Colors.Red);
+                Final_State.Content = "FAIL";
+                if (serial!=null)
+                {
+                   
+                    serial.Close();
+                    serial.Dispose();
+                }
+                if(thread!=null)
+                {
+                    thread.Abort();
+                }
+                btn_Start.Content = "开始";
+                btn_Start.Unchecked -= btn_Start_Unchecked;
+                btn_Start.IsChecked = false;
+                btn_Start.Unchecked += btn_Start_Unchecked;
 
-            //没有关闭数据显示
 
-            //字符串显示
+            }
+            else if(testStates==TestStates.SUCCESS_STATE)
+            {
+                
+                Final_State.Foreground = new SolidColorBrush(Colors.Blue);
+                Final_State.Content = "OK";
+                if (serial != null)
+                {
+                    serial.Close();
+                    serial.Dispose();
+                }
+                if (thread != null)
+                {
+                    thread.Abort();
+                }
+                btn_Start.Content = "开始";
+                btn_Start.Unchecked -= btn_Start_Unchecked;
+                btn_Start.IsChecked = false;
+                btn_Start.Unchecked += btn_Start_Unchecked;
+            }
+            if(sw!=null)
+            sw.Stop();
+            if(time!=null)
+            {
+                time.Stop();
+                time.Dispose();
+            }
+            
+            
+        }
+        
+        private void UpdateFail(SystemStates num)
+        {
 
             switch (num)
             {
-                case 1:
+                case SystemStates.START_STATE:
                     {
                         String str = state_1.Content.ToString();
                         state_1.Foreground = new SolidColorBrush(Colors.Red);
                         state_1.Content = str + FailString;
                     }
                     break;
-                case 2:
+                case SystemStates.SKIP_CAL_STATE:
                     {
                         String str = state_2.Content.ToString();
                         state_2.Foreground = new SolidColorBrush(Colors.Red);
                         state_2.Content = str + FailString;
                     }
                     break;
-                case 3:
+                case SystemStates.SKIP_FINAL_STATE:
                     {
                         String str = state_3.Content.ToString();
                         state_3.Foreground = new SolidColorBrush(Colors.Red);
                         state_3.Content = str + FailString;
                     }
                     break;
-                case 4:
+                case SystemStates.SKIP_CURRENT_STATE:
                     {
                         String str = state_4.Content.ToString();
                         state_4.Foreground = new SolidColorBrush(Colors.Red);
                         state_4.Content = str + FailString;
                     }
                     break;
-                case 5:
+                case SystemStates.SKIP_AGING_STATE:
                     {
                         String str = state_5.Content.ToString();
                         state_5.Foreground = new SolidColorBrush(Colors.Red);
@@ -662,91 +816,91 @@ namespace FactoryTest
                         
                     }
                     break;
-                case 6:
+                case SystemStates.SIM_READY_STATE:
                     {
                         String str = state_6.Content.ToString();
                         state_6.Foreground = new SolidColorBrush(Colors.Red);
                         state_6.Content = str + FailString;
                     }
                     break;
-                case 7:
+                case SystemStates.SIM_IMSI_STATE:
                     {
                         String str = state_7.Content.ToString();
                         state_7.Foreground = new SolidColorBrush(Colors.Red);
                         state_7.Content = str + FailString;
                     }
                     break;
-                case 8:
+                case SystemStates.SIM_ICCID_STATE:
                     {
                         String str = state_8.Content.ToString();
                         state_8.Foreground = new SolidColorBrush(Colors.Red);
                         state_8.Content = str + FailString;
                     }
                     break;
-                case 9:
+                case SystemStates.SW_VERSION_STATE:
                     {
                         String str = state_9.Content.ToString();
                         state_9.Foreground = new SolidColorBrush(Colors.Red);
                         state_9.Content = str + FailString;
                     }
                     break;
-                case 10:
+                case SystemStates.BAT_LEVEL_STATE:
                     {
                         String str = state_10.Content.ToString();
                         state_10.Foreground = new SolidColorBrush(Colors.Red);
                         state_10.Content = str + FailString;
                     }
                     break;
-                case 11:
+                case SystemStates.WIFI_SCAN_STATE:
                     {
                         String str = state_11.Content.ToString();
                         state_11.Foreground = new SolidColorBrush(Colors.Red);
                         state_11.Content = str + FailString;
                     }
                     break;
-                case 13:
+                case SystemStates.WIFI_OFF_STATE:
                     {
                         String str = state_12.Content.ToString();
                         state_12.Foreground = new SolidColorBrush(Colors.Red);
                         state_12.Content = str + FailString;
                     }
                     break;
-                case 15:
+                case SystemStates.DEL_FILE_STATE:
                     {
                         String str = state_13.Content.ToString();
                         state_13.Foreground = new SolidColorBrush(Colors.Red);
                         state_13.Content = str + FailString;
                     }
                     break;
-                case 19:
+                case SystemStates.GSENSOR_2_STATE:
                     {
                         String str = state_16.Content.ToString();
                         state_16.Foreground = new SolidColorBrush(Colors.Red);
                         state_16.Content = str + FailString;
                     }
                     break;
-                case 23:
+                case SystemStates.LED_STOP_STATE:
                     {
                         String str = state_17.Content.ToString();
                         state_17.Foreground = new SolidColorBrush(Colors.Red);
                         state_17.Content = str + FailString;
                     }
                     break;
-                case 25:
+                case SystemStates.GPS_OPEN_STATE:
                     {
                         String str = state_18.Content.ToString();
                         state_18.Foreground = new SolidColorBrush(Colors.Red);
                         state_18.Content = str + FailString;
                     }
                     break;
-                case 27:
+                case SystemStates.SPEAK_OFF_STATE:
                     {
                         String str = state_20.Content.ToString();
                         state_20.Foreground = new SolidColorBrush(Colors.Red);
                         state_20.Content = str + FailString;
                     }
                     break;
-                case 29:
+                case SystemStates.MIC_END_STATE:
                     {
                         String str = state_21.Content.ToString();
                         state_21.Foreground = new SolidColorBrush(Colors.Red);
@@ -757,20 +911,52 @@ namespace FactoryTest
 
             }
         }
-        private void UpdateSkip(int num)
+        private void UpdateSkip(SystemStates num)
         {
             switch(num)
             {
-                case 23:
+                case SystemStates.SKIP_CAL_STATE:
                     {
-                        String str = state_18.Content.ToString();
-                        state_18.Foreground = new SolidColorBrush(Colors.DarkGray);
-                        state_18.Content = str + SkipString;
-                        str = state_19.Content.ToString();
-                        state_19.Foreground = new SolidColorBrush(Colors.DarkGray);
-                        state_19.Content = str + SkipString;
+                        String str = state_2.Content.ToString();
+                        state_2.Foreground = new SolidColorBrush(Colors.DarkGray);
+                        state_2.Content = str + SkipString;
                     }
                     break;
+                case SystemStates.SKIP_FINAL_STATE:
+                    {
+                        String str = state_3.Content.ToString();
+                        state_3.Foreground = new SolidColorBrush(Colors.DarkGray);
+                        state_3.Content = str + SkipString;
+                    }
+                    break;
+                case SystemStates.SKIP_CURRENT_STATE:
+                    {
+                        String str = state_4.Content.ToString();
+                        state_4.Foreground = new SolidColorBrush(Colors.DarkGray);
+                        state_4.Content = str + SkipString;
+                    }
+                    break;
+                case SystemStates.SKIP_AGING_STATE:
+                    {
+                        String str = state_5.Content.ToString();
+                        state_5.Foreground = new SolidColorBrush(Colors.DarkGray);
+                        state_5.Content = str + SkipString;
+                    }
+                    break;
+                case SystemStates.SKIP_CALL_STATE:
+                    {
+                        String str = state_22.Content.ToString();
+                        state_22.Foreground = new SolidColorBrush(Colors.DarkGray);
+                        state_22.Content = str + SkipString;
+                       
+                    }
+                    break;
+                case SystemStates.HANG_UP_STATE:
+                    {
+                        String str = state_23.Content.ToString();
+                        state_23.Foreground = new SolidColorBrush(Colors.DarkGray);
+                        state_23.Content = str + SkipString;
+                    }break;
             }
         }
         private void FactoryTestProgress()
@@ -800,6 +986,14 @@ namespace FactoryTest
                                         Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
                                         
                                     }
+                                    else
+                                    {
+                                       
+                                        state = SystemStates.START_STATE;
+                                        Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateFail), state);
+                                        testStates = TestStates.FAILE_STATE;
+                                        currentstate = 59;
+                                    }
                                 }
                             }break;
                         case 2:
@@ -824,10 +1018,16 @@ namespace FactoryTest
                                 {
                                     state = SystemStates.SKIP_CAL_STATE;
                                     currentstate = 4;
+                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
+                                    
                                 }
                                 else if((receiveData.Contains("\r\nnot calibrated\r\n") == true)|| (receiveData.Contains("\r\ncalibation fail\r\n") == true))
                                 {
                                     state = SystemStates.SKIP_CAL_STATE;
+                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateFail), state);
+                                    testStates = TestStates.FAILE_STATE;
+                                    currentstate = 59;
+                                    
                                 }
                             }
                             break;
@@ -853,10 +1053,15 @@ namespace FactoryTest
                                 {
                                     state = SystemStates.SKIP_FINAL_STATE;
                                     currentstate = 6;
+                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
+                                   
                                 }
                                 else if ((receiveData.Contains("\r\nnot check final test\r\n") == true) || (receiveData.Contains("\r\nfinal test fail\r\n") == true))
                                 {
                                     state = SystemStates.SKIP_FINAL_STATE;
+                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateFail), state);
+                                    testStates = TestStates.FAILE_STATE;
+                                    currentstate = 59;
                                 }
                             }
                             break;
@@ -881,10 +1086,15 @@ namespace FactoryTest
                                 {
                                     state = SystemStates.SKIP_CURRENT_STATE;
                                     currentstate = 8;
+                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
+                                   
                                 }
                                 else if (receiveData.Contains("\r\nREAD_CURRENT_FLAG\r\n\r\nERROR\r\n") == true)
                                 {
                                     state = SystemStates.SKIP_CURRENT_STATE;
+                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateFail), state);
+                                    testStates = TestStates.FAILE_STATE;
+                                    currentstate = 59;
                                 }
                             }
                             break;
@@ -909,10 +1119,14 @@ namespace FactoryTest
                                 {
                                     state = SystemStates.SKIP_AGING_STATE;
                                     currentstate = 10;
+                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateSkip), state);
                                 }
                                 else if (receiveData.Contains("\r\nREAD_AGING_FLAG\r\n\r\nERROR\r\n") == true)
                                 {
                                     state = SystemStates.SKIP_AGING_STATE;
+                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateFail), state);
+                                    testStates = TestStates.FAILE_STATE;
+                                    currentstate = 59;
                                 }
                             }
                             break;
@@ -930,6 +1144,13 @@ namespace FactoryTest
                                     currentstate = 12;
                                     state = SystemStates.SIM_READY_STATE;
                                     Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
+                                }
+                                else if(receiveData.Contains("\r\nSIM_NOT_READY\r\n") == true)
+                                {
+                                    state = SystemStates.SIM_READY_STATE;
+                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateFail), state);
+                                    testStates = TestStates.FAILE_STATE;
+                                    currentstate = 59;
                                 }
                             }
                             break;
@@ -983,8 +1204,9 @@ namespace FactoryTest
                                     }
                                     else
                                     {
-                                        Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextFailDelegate(UpdateFail), state);
-                                        if (FactoryTestThread != null) FactoryTestThread.Abort();
+                                        Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateFail), state);
+                                        testStates = TestStates.FAILE_STATE;
+                                        currentstate = 59;
                                     }
                                    
                                    
@@ -1015,8 +1237,9 @@ namespace FactoryTest
                                     else
                                     {
                                        
-                                        Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextFailDelegate(UpdateFail), state);
-                                        if (FactoryTestThread != null) FactoryTestThread.Abort();
+                                        Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateFail), state);
+                                        testStates = TestStates.FAILE_STATE;
+                                        currentstate = 59;
                                     }
                                     
                                 }
@@ -1054,8 +1277,9 @@ namespace FactoryTest
                                         else
                                         {
 
-                                            Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextFailDelegate(UpdateFail), state);
-                                            if (FactoryTestThread != null) FactoryTestThread.Abort();
+                                            Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateFail), state);
+                                            testStates = TestStates.FAILE_STATE;
+                                            currentstate = 59;
                                         }
                                         WIFI_SCAN_TIMES++;
                                     }
@@ -1128,7 +1352,9 @@ namespace FactoryTest
                                     else
                                     {
                                         state = SystemStates.BLE_SCAN_STATE;
-                                        Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextFailDelegate(UpdateFail), state);
+                                        Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateFail), state);
+                                        testStates = TestStates.FAILE_STATE;
+                                        currentstate = 59;
                                     }
 
                                 }
@@ -1220,8 +1446,9 @@ namespace FactoryTest
                                 state = SystemStates.GSENSOR_2_STATE;
                                 if ((nx==gx)&&(ny==gy)&&(nz==gz))
                                 {
-                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextFailDelegate(UpdateFail), state);
-                                    if (FactoryTestThread != null) FactoryTestThread.Abort();
+                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateFail), state);
+                                    testStates = TestStates.FAILE_STATE;
+                                    currentstate = 59;
                                 }
                                 else
                                 {
@@ -1273,8 +1500,9 @@ namespace FactoryTest
                                 else
                                 {
                                     state = SystemStates.LED_STOP_STATE;
-                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextFailDelegate(UpdateFail), state);
-                                    if (FactoryTestThread != null) FactoryTestThread.Abort();
+                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateFail), state);
+                                    testStates = TestStates.FAILE_STATE;
+                                    currentstate = 59;
                                 }
 
                             }
@@ -1341,8 +1569,9 @@ namespace FactoryTest
                                 else
                                 {
                                     state = SystemStates.SPEAK_OFF_STATE;
-                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextFailDelegate(UpdateFail), state);
-                                    if (FactoryTestThread != null) FactoryTestThread.Abort();
+                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateFail), state);
+                                    testStates = TestStates.FAILE_STATE;
+                                    currentstate = 59;
                                 }
 
 
@@ -1402,8 +1631,9 @@ namespace FactoryTest
                                 else
                                 {
                                     state = SystemStates.MIC_END_STATE;
-                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextFailDelegate(UpdateFail), state);
-                                    if (FactoryTestThread != null) FactoryTestThread.Abort();
+                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateFail), state);
+                                    testStates = TestStates.FAILE_STATE;
+                                    currentstate = 59;
                                 }
                             }
                             break;
@@ -1446,8 +1676,9 @@ namespace FactoryTest
                                else
                                 {
                                     state = SystemStates.CALL_OUT_STATE;
-                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextFailDelegate(UpdateFail), state);
-                                    if (FactoryTestThread != null) FactoryTestThread.Abort();
+                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateFail), state);
+                                    testStates = TestStates.FAILE_STATE;
+                                    currentstate = 59;
                                 }
                             }break;
                         case 52:
@@ -1495,11 +1726,12 @@ namespace FactoryTest
                                         currentstate = 56;
                                         Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
                                     }
-                                    else if(sub_string.Contains("ERROR"))
+                                    else if(sub_string.Contains("\r\nERROR\r\n"))
                                     {
                                         state = SystemStates.WRITE_FLAG_STATE;
-                                        Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextFailDelegate(UpdateFail), state);
-                                        if (FactoryTestThread != null) FactoryTestThread.Abort();
+                                        Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateFail), state);
+                                        testStates = TestStates.FAILE_STATE;
+                                        currentstate = 59;
                                     }
                                  }
                             }
@@ -1512,7 +1744,7 @@ namespace FactoryTest
                             break;
                         case 57:
                             {
-                                if(receiveData.Contains("START SHUTDOWN") ==true)
+                                if(receiveData.Contains("\r\nSTART SHUTDOWN...\r\n") ==true)
                                 {
                                     state = SystemStates.SHUTDOWN_START_STATE;
                                     currentstate = 58;
@@ -1525,14 +1757,33 @@ namespace FactoryTest
                                 if(Rec_state)
                                 {
                                     state = SystemStates.SHUTDOWN_END_STATE;
+                                    testStates = TestStates.SUCCESS_STATE;
                                     currentstate = 59;
                                     Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateColor), state);
+                                    
                                 }
                                 else
                                 {
                                     state = SystemStates.SHUTDOWN_END_STATE;
+                                    
+                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextColorDelegate(UpdateFail), state);
+                                    
+                                    testStates = TestStates.FAILE_STATE;
                                     currentstate = 59;
-                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextFailDelegate(UpdateFail), state);
+                                }
+                            }break;
+                        case 59:
+                            {
+                                currentstate = 0xff;
+                                if (testStates == TestStates.FAILE_STATE)
+                                {
+                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextTestStateDelegate(UpdateTestSTATE), testStates);
+                                   
+                                    if (FactoryTestThread != null) FactoryTestThread.Abort();
+                                }
+                                else if (testStates == TestStates.SUCCESS_STATE)
+                                {
+                                    Dispatcher.Invoke(DispatcherPriority.Send, new UpdateUiTextTestStateDelegate(UpdateTestSTATE), testStates);
                                     if (FactoryTestThread != null) FactoryTestThread.Abort();
                                 }
                             }break;
@@ -1570,6 +1821,62 @@ namespace FactoryTest
         }
         void ResetAllLable()
         {
+            state_1.Foreground= new SolidColorBrush(Colors.Black);
+            state_2.Foreground = new SolidColorBrush(Colors.Black);
+            state_3.Foreground = new SolidColorBrush(Colors.Black);
+            state_4.Foreground = new SolidColorBrush(Colors.Black);
+            state_5.Foreground = new SolidColorBrush(Colors.Black);
+            state_6.Foreground = new SolidColorBrush(Colors.Black);
+            state_7.Foreground = new SolidColorBrush(Colors.Black);
+            state_8.Foreground = new SolidColorBrush(Colors.Black);
+            state_9.Foreground = new SolidColorBrush(Colors.Black);
+            state_10.Foreground = new SolidColorBrush(Colors.Black);
+            state_11.Foreground = new SolidColorBrush(Colors.Black);
+            state_12.Foreground = new SolidColorBrush(Colors.Black);
+            state_13.Foreground = new SolidColorBrush(Colors.Black);
+            state_14.Foreground = new SolidColorBrush(Colors.Black);
+            state_15.Foreground = new SolidColorBrush(Colors.Black);
+            state_16.Foreground = new SolidColorBrush(Colors.Black);
+            state_17.Foreground = new SolidColorBrush(Colors.Black);
+            state_18.Foreground = new SolidColorBrush(Colors.Black);
+            state_19.Foreground = new SolidColorBrush(Colors.Black);
+            state_20.Foreground = new SolidColorBrush(Colors.Black);
+            state_21.Foreground = new SolidColorBrush(Colors.Black);
+            state_22.Foreground = new SolidColorBrush(Colors.Black);
+            state_23.Foreground = new SolidColorBrush(Colors.Black);
+            state_24.Foreground = new SolidColorBrush(Colors.Black);
+            state_25.Foreground = new SolidColorBrush(Colors.Black);
+            Final_State.Foreground = new SolidColorBrush(Colors.Black);
+            state_1.Content = "1.进入测试模式";
+            state_2.Content = "2.检测校准标志";
+            state_3.Content = "3.综测标志检测";
+            state_4.Content = "4.电流测试检测";
+            state_5.Content = "5.老化试验检测";
+            state_6.Content = "6.读取SIM状态";
+            state_7.Content = "7.读取IMSI号码";
+            state_8.Content = "8.读取ICCID号码";
+            state_9.Content = "9.读取软件版本";
+            state_10.Content = "10.读取电池电量";
+            state_11.Content = "11.WIFI扫描测试";
+            state_12.Content = "12.关闭WIFI扫描";
+            state_13.Content = "13.删除文件测试";
+            state_14.Content = "14.BLE扫描测试";
+            state_15.Content = "15.关闭BLE扫描";
+            state_16.Content = "16.加速度计测试";
+            state_17.Content = "17.LED闪烁测试";
+            state_18.Content = "18.GPS搜星测试";
+            state_19.Content = "19.关闭GPS搜星";
+            state_20.Content = "20.喇叭发声测试";
+            state_21.Content = "21.MIC录音测试";
+            state_22.Content = "22.拨打电话测试";
+            state_23.Content = "23.挂断电话测试";
+            state_24.Content = "24.写入完成标志";
+            state_25.Content = "25.关机测试";
+            Final_State.Content = "";
+            txtDisp.Text = "";
+            receiveData = "";
+            Rec_TxtBox.Text = "";
+            
 
         }
 
